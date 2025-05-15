@@ -42,10 +42,14 @@ public class AnalyticsServiceTest {
         bankAccount1 = new BankAccount();
         bankAccount2 = new BankAccount();
 
-        bankAccount1.getTransactions().add(new Transaction("1", TEN_DOLLARS, TransactionType.PAYMENT, BEAUTY_CATEGORY, TEN_DAYS_AGO));
-        bankAccount1.getTransactions().add(new Transaction("2", FIFTEEN_DOLLARS, TransactionType.PAYMENT, BEAUTY_CATEGORY, FIVE_MONTHS_AGO));
-        bankAccount2.getTransactions().add(new Transaction("3", TWENTY_DOLLARS, TransactionType.PAYMENT, FOOD_CATEGORY, THREE_DAYS_AGO));
-        bankAccount2.getTransactions().add(new Transaction("4", TWENTY_DOLLARS, TransactionType.PAYMENT, EDUCATION_CATEGORY, ONE_DAY_AGO));
+        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("1").amount(TEN_DOLLARS).type(TransactionType.PAYMENT)
+                .category(BEAUTY_CATEGORY).createdDate(TEN_DAYS_AGO).build());
+        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("2").amount(FIFTEEN_DOLLARS).type(TransactionType.PAYMENT)
+                .category(BEAUTY_CATEGORY).createdDate(FIVE_MONTHS_AGO).build());
+        bankAccount2.getTransactions().add(Transaction.hiddenBuilder().id("3").amount(TWENTY_DOLLARS).type(TransactionType.PAYMENT)
+                .category(FOOD_CATEGORY).createdDate(THREE_DAYS_AGO).build());
+        bankAccount2.getTransactions().add(Transaction.hiddenBuilder().id("4").amount(TWENTY_DOLLARS).type(TransactionType.PAYMENT)
+                .category(EDUCATION_CATEGORY).createdDate(ONE_DAY_AGO).build());
 
         user.getBankAccounts().add(bankAccount1);
         user.getBankAccounts().add(bankAccount2);
@@ -69,7 +73,8 @@ public class AnalyticsServiceTest {
 
         // Нет транзакций за последний месяц
         bankAccount1.getTransactions().clear();
-        bankAccount1.getTransactions().add(new Transaction("5", FIFTEEN_DOLLARS, TransactionType.PAYMENT, BEAUTY_CATEGORY, FIVE_MONTHS_AGO));
+        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("5").amount(FIFTEEN_DOLLARS).type(TransactionType.PAYMENT)
+                .category(BEAUTY_CATEGORY).createdDate(FIVE_MONTHS_AGO).build());
         result = analyticsService.getMonthlySpendingByCategory(bankAccount1, BEAUTY_CATEGORY);
         assertEquals(BigDecimal.ZERO, result);
     }
@@ -82,9 +87,9 @@ public class AnalyticsServiceTest {
         assertEquals(2, result.get(BEAUTY_CATEGORY).size());
         assertEquals(1, result.get(EDUCATION_CATEGORY).size());
 
-        assertEquals(TWENTY_DOLLARS, result.get(FOOD_CATEGORY).get(0).getValue());
-        assertEquals(TWENTY_DOLLARS, result.get(EDUCATION_CATEGORY).get(0).getValue());
-        assertEquals(TEN_DOLLARS, result.get(BEAUTY_CATEGORY).get(0).getValue());
+        assertEquals(TWENTY_DOLLARS, result.get(FOOD_CATEGORY).get(0).getAmount());
+        assertEquals(TWENTY_DOLLARS, result.get(EDUCATION_CATEGORY).get(0).getAmount());
+        assertEquals(TEN_DOLLARS, result.get(BEAUTY_CATEGORY).get(0).getAmount());
     }
 
     @Test
@@ -96,7 +101,9 @@ public class AnalyticsServiceTest {
         // Нет транзакций типа PAYMENT
         user.getBankAccounts().clear();
         bankAccount1.getTransactions().clear();
-        bankAccount1.getTransactions().add(new Transaction("6", TEN_DOLLARS, TransactionType.DEPOSIT, BEAUTY_CATEGORY, TEN_DAYS_AGO));
+        bankAccount1.getTransactions().add(Transaction.hiddenBuilder()
+                .id("6").amount(TEN_DOLLARS).type(TransactionType.DEPOSIT)
+                .category(BEAUTY_CATEGORY).createdDate(TEN_DAYS_AGO).build());
         user.getBankAccounts().add(bankAccount1);
         result = analyticsService.getTransactionHistorySortedByAmount(user);
         assertTrue(result.isEmpty());
@@ -130,8 +137,8 @@ public class AnalyticsServiceTest {
         Transaction first = result.poll();
         Transaction second = result.poll();
 
-        assertEquals(TWENTY_DOLLARS, first.getValue());
-        assertEquals(TWENTY_DOLLARS, second.getValue());
+        assertEquals(TWENTY_DOLLARS, first.getAmount());
+        assertEquals(TWENTY_DOLLARS, second.getAmount());
     }
 
     @Test
@@ -143,7 +150,8 @@ public class AnalyticsServiceTest {
         // Нет транзакций типа PAYMENT
         user.getBankAccounts().clear();
         bankAccount1.getTransactions().clear();
-        bankAccount1.getTransactions().add(new Transaction("6", TEN_DOLLARS, TransactionType.DEPOSIT, BEAUTY_CATEGORY, TEN_DAYS_AGO));
+        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("6").amount(TEN_DOLLARS).type(TransactionType.DEPOSIT)
+                .category(BEAUTY_CATEGORY).createdDate(TEN_DAYS_AGO).build());
         user.getBankAccounts().add(bankAccount1);
         result = analyticsService.getTopNLargestTransactions(user, 2);
         assertTrue(result.isEmpty());
@@ -159,8 +167,8 @@ public class AnalyticsServiceTest {
         long startTime = System.currentTimeMillis();
         transactions.stream()
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
-                .filter(transaction -> transaction.getValue().compareTo(new BigDecimal("1000")) > 0)
-                .sorted(Comparator.comparing(Transaction::getValue))
+                .filter(transaction -> transaction.getAmount().compareTo(new BigDecimal("1000")) > 0)
+                .sorted(Comparator.comparing(Transaction::getAmount))
                 .count();
         long endTime = System.currentTimeMillis();
         System.out.println("Sequential stream time: " + (endTime - startTime) + " ms");
@@ -168,8 +176,8 @@ public class AnalyticsServiceTest {
         startTime = System.currentTimeMillis();
         transactions.parallelStream()
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
-                .filter(transaction -> transaction.getValue().compareTo(new BigDecimal("1000")) > 0)
-                .sorted(Comparator.comparing(Transaction::getValue))
+                .filter(transaction -> transaction.getAmount().compareTo(new BigDecimal("1000")) > 0)
+                .sorted(Comparator.comparing(Transaction::getAmount))
                 .count();
         endTime = System.currentTimeMillis();
         System.out.println("Parallel stream time: " + (endTime - startTime) + " ms");

@@ -4,6 +4,7 @@ import gigabank.accountmanagement.entity.BankAccount;
 import gigabank.accountmanagement.entity.Transaction;
 import gigabank.accountmanagement.entity.TransactionType;
 import gigabank.accountmanagement.entity.User;
+import gigabank.accountmanagement.utility.utils.LogExecutionTime;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
@@ -25,6 +26,7 @@ public class AnalyticsService {
      * @param bankAccount - счет
      * @param category    - категория
      */
+    @LogExecutionTime
     public BigDecimal getMonthlySpendingByCategory(BankAccount bankAccount, String category) {
         BigDecimal totalSum = BigDecimal.ZERO;
 
@@ -38,7 +40,7 @@ public class AnalyticsService {
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType())
                         && StringUtils.equals(transaction.getCategory(), category)
                         && transaction.getCreatedDate().isAfter(oneMontAgo))
-                .map(Transaction::getValue)
+                .map(Transaction::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return totalSum;
@@ -52,6 +54,7 @@ public class AnalyticsService {
      * @param categories - категории
      * @return мапа категория - сумма потраченных средств
      */
+    @LogExecutionTime
     public Map<String, BigDecimal> getMonthlySpendingByCategories(User user, Set<String> categories) {
         Map<String, BigDecimal> resultMap = new HashMap<>();
         Set<String> validCategories = transactionService.validateCategories(categories);
@@ -67,7 +70,7 @@ public class AnalyticsService {
                         && validCategories.contains(transaction.getCategory())
                         && transaction.getCreatedDate().isAfter(oneMontAgo))
                 .collect(Collectors.groupingBy(Transaction::getCategory,
-                        Collectors.reducing(BigDecimal.ZERO, Transaction::getValue, BigDecimal::add)));
+                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)));
 
         return resultMap;
     }
@@ -87,7 +90,7 @@ public class AnalyticsService {
         resultMap = user.getBankAccounts().stream()
                 .flatMap(bankAccount ->bankAccount.getTransactions().stream())
                 .filter(transaction ->TransactionType.PAYMENT.equals(transaction.getType()))
-                .sorted(Comparator.comparing(Transaction::getValue))
+                .sorted(Comparator.comparing(Transaction::getAmount))
                 .collect(Collectors.groupingBy(Transaction::getCategory, LinkedHashMap::new, Collectors.toList()));
 
         return resultMap;
@@ -122,9 +125,10 @@ public class AnalyticsService {
      * @param n    - количество топовых транзакций
      * @return PriorityQueue, где транзакции хранятся в порядке убывания их значения
      */
+    @LogExecutionTime
     public PriorityQueue<Transaction> getTopNLargestTransactions(User user, int n) {
         PriorityQueue<Transaction> transactionPriorityQueue =
-                new PriorityQueue<>(Comparator.comparing(Transaction::getValue));
+                new PriorityQueue<>(Comparator.comparing(Transaction::getAmount));
 
         if (user == null) {
             return transactionPriorityQueue;
@@ -133,10 +137,10 @@ public class AnalyticsService {
         transactionPriorityQueue = user.getBankAccounts().stream()
                 .flatMap(bankAccount -> bankAccount.getTransactions().stream())
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
-                .sorted(Comparator.comparing(Transaction::getValue).reversed())
+                .sorted(Comparator.comparing(Transaction::getAmount).reversed())
                 .limit(n)
                 .collect(Collectors.toCollection
-                        (() -> new PriorityQueue<>(Comparator.comparing(Transaction::getValue).reversed())));
+                        (() -> new PriorityQueue<>(Comparator.comparing(Transaction::getAmount).reversed())));
 
         return transactionPriorityQueue;
     }

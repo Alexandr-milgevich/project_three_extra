@@ -98,6 +98,4 @@ public class TransactionService {
     public List<Transaction> createTransactionList(Supplier<List<Transaction>> supplier) {
         return supplier.get();
     }
-
-
 }

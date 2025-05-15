@@ -2,7 +2,6 @@ import gigabank.accountmanagement.entity.BankAccount;
 import gigabank.accountmanagement.entity.Transaction;
 import gigabank.accountmanagement.entity.TransactionType;
 import gigabank.accountmanagement.entity.User;
-import gigabank.accountmanagement.service.AnalyticsService;
 import gigabank.accountmanagement.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +47,7 @@ public class TransactionServiceTest {
         List<Transaction> result = transactionService.filterTransactions(user, isPayment);
         assertEquals(4, result.size());
 
-        Predicate<Transaction> isLargePayment = transaction -> transaction.getValue().compareTo(new BigDecimal("100.00")) > 0;
+        Predicate<Transaction> isLargePayment = transaction -> transaction.getAmount().compareTo(new BigDecimal("100.00")) > 0;
         result = transactionService.filterTransactions(user, isLargePayment);
         assertEquals(2, result.size());
     }
@@ -62,7 +61,7 @@ public class TransactionServiceTest {
 
     @Test
     public void testTransformTransactions() {
-        Function<Transaction, String> transactionToString = transaction -> transaction.getId() + ": " + transaction.getValue();
+        Function<Transaction, String> transactionToString = transaction -> transaction.getId() + ": " + transaction.getAmount();
         List<String> result = transactionService.transformTransactions(user, transactionToString);
         assertEquals(4, result.size());
         assertTrue(result.contains("1: 100.00"));
@@ -73,7 +72,7 @@ public class TransactionServiceTest {
 
     @Test
     public void testTransformTransactions_nullUser() {
-        Function<Transaction, String> transactionToString = transaction -> transaction.getId() + ": " + transaction.getValue();
+        Function<Transaction, String> transactionToString = transaction -> transaction.getId() + ": " + transaction.getAmount();
         List<String> result = transactionService.transformTransactions(null, transactionToString);
         assertTrue(result.isEmpty());
     }
