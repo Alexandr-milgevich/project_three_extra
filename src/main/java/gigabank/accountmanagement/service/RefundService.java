@@ -1,11 +1,13 @@
 package gigabank.accountmanagement.service;
 
-import gigabank.accountmanagement.entity.Refund;
+import gigabank.accountmanagement.models.dto.Refund;
+import org.springframework.stereotype.Service;
 
 /**
  * Сервис, осуществляющий возвраты по платежам.
  * Использует синглтон {@link PaymentGatewayService} для взаимодействия с платёжной системой.
  */
+@Service
 public class RefundService {
 
     /**

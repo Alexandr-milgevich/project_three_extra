@@ -1,13 +1,14 @@
 package gigabank.accountmanagement.service;
 
-import gigabank.accountmanagement.entity.BankAccount;
-import gigabank.accountmanagement.entity.Transaction;
-import gigabank.accountmanagement.entity.TransactionType;
-import gigabank.accountmanagement.entity.User;
-import gigabank.accountmanagement.service.strategy.payment.bank.service.BankTransferStrategy;
-import gigabank.accountmanagement.service.strategy.payment.bank.service.CardPaymentStrategy;
-import gigabank.accountmanagement.service.strategy.payment.bank.service.DigitalWalletStrategy;
-import gigabank.accountmanagement.service.strategy.payment.bank.service.PaymentStrategy;
+import gigabank.accountmanagement.constants.TransactionType;
+import gigabank.accountmanagement.models.dto.BankAccount;
+import gigabank.accountmanagement.models.dto.Transaction;
+import gigabank.accountmanagement.models.dto.User;
+import gigabank.accountmanagement.design.strategy.payment.bank.service.BankTransferStrategy;
+import gigabank.accountmanagement.design.strategy.payment.bank.service.CardPaymentStrategy;
+import gigabank.accountmanagement.design.strategy.payment.bank.service.DigitalWalletStrategy;
+import gigabank.accountmanagement.design.strategy.payment.bank.service.PaymentStrategy;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -18,28 +19,40 @@ import java.util.Map;
 /**
  * Сервис для управления счетами, включая создание, удаление и пополнение.
  * Также управляет обработкой транзакций и уведомлениями.
+ * Использует стратегии ({@link PaymentStrategy}) для обработки разных типов платежей.
  */
+@Service
 public class BankAccountService {
+
     /**
-     * Ищет банковский аккаунт по ID.
+     * Находит банковский счет по идентификатору.
+     * В текущей реализации возвращает тестовый аккаунт.
      *
-     * @param accountId Идентификатор аккаунта.
-     * @return {@link BankAccount} с указанным ID.
+     * @param accountId идентификатор банковского счета
+     * @return объект {@link BankAccount} с указанным ID
      */
     public BankAccount findAccountById(int accountId) {
         return createTestAccount();
     }
 
     /**
-     * Снимает деньги с указанного банковского аккаунта.
+     * Снимает указанную сумму с банковского счета.
      *
-     * @param account Аккаунт, с которого будут сняты деньги.
-     * @param amount  Сумма, которую необходимо снять.
+     * @param account банковский счет для списания
+     * @param amount  сумма для снятия
      */
     public void withdraw(BankAccount account, BigDecimal amount) {
         account.setBalance(account.getBalance().subtract(amount));
     }
 
+    /**
+     * Обрабатывает платеж с использованием указанной стратегии.
+     *
+     * @param account  банковский счет для списания
+     * @param amount   сумма платежа
+     * @param strategy стратегия обработки платежа ({@link PaymentStrategy})
+     * @param details  дополнительные детали платежа
+     */
     public void processPayment(BankAccount account, BigDecimal amount,
                                PaymentStrategy strategy,
                                Map<String, String> details) {
@@ -47,13 +60,15 @@ public class BankAccountService {
     }
 
     /**
-     * Обрабатывает платеж картой для указанного аккаунта.
+     * Обрабатывает платеж банковской картой.
      *
-     * @param account    Аккаунт, с которого будет списана сумма.
-     * @param amount     Сумма платежа.
-     * @param cardNumber Номер карты (последние 4 цифры).
+     * @param account      банковский счет для списания
+     * @param amount       сумма платежа
+     * @param cardNumber   последние 4 цифры номера карты
+     * @param merchantName название мерчанта
      */
-    public void processCardPayment(BankAccount account, BigDecimal amount, String cardNumber, String merchantName) {
+    public void processCardPayment(BankAccount account, BigDecimal amount,
+                                   String cardNumber, String merchantName) {
         Map<String, String> details = new HashMap<>();
         details.put("category", "Education");
         details.put("createdDate", LocalDateTime.now().minusDays(10).toString());
@@ -64,11 +79,11 @@ public class BankAccountService {
     }
 
     /**
-     * Обрабатывает банковский перевод для указанного аккаунта.
+     * Обрабатывает банковский перевод.
      *
-     * @param account  Аккаунт, с которого будет списана сумма.
-     * @param amount   Сумма перевода.
-     * @param bankName Название банка.
+     * @param account  банковский счет для списания
+     * @param amount   сумма перевода
+     * @param bankName название банка-получателя
      */
     public void processBankTransfer(BankAccount account, BigDecimal amount, String bankName) {
         Map<String, String> details = new HashMap<>();
@@ -80,11 +95,11 @@ public class BankAccountService {
     }
 
     /**
-     * Обрабатывает платеж через электронный кошелек для указанного аккаунта.
+     * Обрабатывает платеж через электронный кошелек.
      *
-     * @param account  Аккаунт, с которого будет списана сумма.
-     * @param amount   Сумма платежа.
-     * @param walletId Идентификатор электронного кошелька.
+     * @param account  банковский счет для списания
+     * @param amount   сумма платежа
+     * @param walletId идентификатор электронного кошелька
      */
     public void processWalletPayment(BankAccount account, BigDecimal amount, String walletId) {
         Map<String, String> details = new HashMap<>();
@@ -96,9 +111,9 @@ public class BankAccountService {
     }
 
     /**
-     * Создает тестовый банковский аккаунт с тестовыми данными.
+     * Создает тестовый банковский счет с демонстрационными данными.
      *
-     * @return {@link BankAccount} с тестовыми данными.
+     * @return объект {@link BankAccount} с тестовыми данными
      */
     public static BankAccount createTestAccount() {
         User testUser = new User();
@@ -114,7 +129,6 @@ public class BankAccountService {
         account.setId("acc123");
         account.setBalance(new BigDecimal("5000.00"));
         account.setOwner(testUser);
-
 
         Transaction transaction1 = Transaction.hiddenBuilder()
                 .id("tx001")

@@ -1,12 +1,13 @@
 package gigabank.accountmanagement.service;
 
-import gigabank.accountmanagement.entity.BankAccount;
-import gigabank.accountmanagement.entity.Transaction;
-import gigabank.accountmanagement.entity.TransactionType;
-import gigabank.accountmanagement.entity.User;
-import gigabank.accountmanagement.utility.utils.LogExecutionTime;
+import gigabank.accountmanagement.annotations.LogExecutionTime;
+import gigabank.accountmanagement.constants.TransactionType;
+import gigabank.accountmanagement.models.dto.BankAccount;
+import gigabank.accountmanagement.models.dto.Transaction;
+import gigabank.accountmanagement.models.dto.User;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * Сервис предоставляет аналитику по операциям пользователей
  */
 @RequiredArgsConstructor
+@Service
 public class AnalyticsService {
     private final TransactionService transactionService;
 
@@ -64,7 +66,7 @@ public class AnalyticsService {
 
         LocalDateTime oneMontAgo = LocalDateTime.now().minusMonths(1L);
 
-        resultMap =  user.getBankAccounts().stream()
+        resultMap = user.getBankAccounts().stream()
                 .flatMap(bankAccount -> bankAccount.getTransactions().stream())
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType())
                         && validCategories.contains(transaction.getCategory())
@@ -88,8 +90,8 @@ public class AnalyticsService {
         }
 
         resultMap = user.getBankAccounts().stream()
-                .flatMap(bankAccount ->bankAccount.getTransactions().stream())
-                .filter(transaction ->TransactionType.PAYMENT.equals(transaction.getType()))
+                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+                .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
                 .sorted(Comparator.comparing(Transaction::getAmount))
                 .collect(Collectors.groupingBy(Transaction::getCategory, LinkedHashMap::new, Collectors.toList()));
 
