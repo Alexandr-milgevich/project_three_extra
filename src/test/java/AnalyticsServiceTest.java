@@ -1,7 +1,7 @@
-import gigabank.accountmanagement.models.dto.BankAccount;
-import gigabank.accountmanagement.models.dto.Transaction;
+import gigabank.accountmanagement.models.dto.BankAccountDto;
+import gigabank.accountmanagement.models.dto.TransactionDto;
 import gigabank.accountmanagement.constants.TransactionType;
-import gigabank.accountmanagement.models.dto.User;
+import gigabank.accountmanagement.models.dto.UserDto;
 import gigabank.accountmanagement.service.AnalyticsService;
 import gigabank.accountmanagement.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,31 +33,31 @@ public class AnalyticsServiceTest {
 
     private TransactionService transactionService = new TransactionService();
     private AnalyticsService analyticsService = new AnalyticsService(transactionService);
-    private User user = new User();
-    private BankAccount bankAccount1;
-    private BankAccount bankAccount2;
+    private UserDto userDto = new UserDto();
+    private BankAccountDto bankAccountDto1;
+    private BankAccountDto bankAccountDto2;
 
     @BeforeEach
     public void setUp() {
-        bankAccount1 = new BankAccount();
-        bankAccount2 = new BankAccount();
+        bankAccountDto1 = new BankAccountDto();
+        bankAccountDto2 = new BankAccountDto();
 
-        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("1").amount(TEN_DOLLARS).type(TransactionType.PAYMENT)
+        bankAccountDto1.getTransactionDtos().add(TransactionDto.hiddenBuilder().id("1").amount(TEN_DOLLARS).type(TransactionType.PAYMENT)
                 .category(BEAUTY_CATEGORY).createdDate(TEN_DAYS_AGO).build());
-        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("2").amount(FIFTEEN_DOLLARS).type(TransactionType.PAYMENT)
+        bankAccountDto1.getTransactionDtos().add(TransactionDto.hiddenBuilder().id("2").amount(FIFTEEN_DOLLARS).type(TransactionType.PAYMENT)
                 .category(BEAUTY_CATEGORY).createdDate(FIVE_MONTHS_AGO).build());
-        bankAccount2.getTransactions().add(Transaction.hiddenBuilder().id("3").amount(TWENTY_DOLLARS).type(TransactionType.PAYMENT)
+        bankAccountDto2.getTransactionDtos().add(TransactionDto.hiddenBuilder().id("3").amount(TWENTY_DOLLARS).type(TransactionType.PAYMENT)
                 .category(FOOD_CATEGORY).createdDate(THREE_DAYS_AGO).build());
-        bankAccount2.getTransactions().add(Transaction.hiddenBuilder().id("4").amount(TWENTY_DOLLARS).type(TransactionType.PAYMENT)
+        bankAccountDto2.getTransactionDtos().add(TransactionDto.hiddenBuilder().id("4").amount(TWENTY_DOLLARS).type(TransactionType.PAYMENT)
                 .category(EDUCATION_CATEGORY).createdDate(ONE_DAY_AGO).build());
 
-        user.getBankAccounts().add(bankAccount1);
-        user.getBankAccounts().add(bankAccount2);
+        userDto.getBankAccountDtos().add(bankAccountDto1);
+        userDto.getBankAccountDtos().add(bankAccountDto2);
     }
 
     @Test
     public void get_monthly_spending_by_category() {
-        BigDecimal result = analyticsService.getMonthlySpendingByCategory(bankAccount1, BEAUTY_CATEGORY);
+        BigDecimal result = analyticsService.getMonthlySpendingByCategory(bankAccountDto1, BEAUTY_CATEGORY);
         assertEquals(TEN_DOLLARS, result);
     }
 
@@ -68,20 +68,20 @@ public class AnalyticsServiceTest {
         assertEquals(BigDecimal.ZERO, result);
 
         // Категория равна null
-        result = analyticsService.getMonthlySpendingByCategory(bankAccount1, null);
+        result = analyticsService.getMonthlySpendingByCategory(bankAccountDto1, null);
         assertEquals(BigDecimal.ZERO, result);
 
         // Нет транзакций за последний месяц
-        bankAccount1.getTransactions().clear();
-        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("5").amount(FIFTEEN_DOLLARS).type(TransactionType.PAYMENT)
+        bankAccountDto1.getTransactionDtos().clear();
+        bankAccountDto1.getTransactionDtos().add(TransactionDto.hiddenBuilder().id("5").amount(FIFTEEN_DOLLARS).type(TransactionType.PAYMENT)
                 .category(BEAUTY_CATEGORY).createdDate(FIVE_MONTHS_AGO).build());
-        result = analyticsService.getMonthlySpendingByCategory(bankAccount1, BEAUTY_CATEGORY);
+        result = analyticsService.getMonthlySpendingByCategory(bankAccountDto1, BEAUTY_CATEGORY);
         assertEquals(BigDecimal.ZERO, result);
     }
 
     @Test
     public void get_transaction_history_sorted_by_amount() {
-        LinkedHashMap<String, List<Transaction>> result = analyticsService.getTransactionHistorySortedByAmount(user);
+        LinkedHashMap<String, List<TransactionDto>> result = analyticsService.getTransactionHistorySortedByAmount(userDto);
         assertNotNull(result);
         assertEquals(1, result.get(FOOD_CATEGORY).size());
         assertEquals(2, result.get(BEAUTY_CATEGORY).size());
@@ -95,23 +95,23 @@ public class AnalyticsServiceTest {
     @Test
     public void get_transaction_history_sorted_by_amount_invalid_input() {
         // Пользователь равен null
-        LinkedHashMap<String, List<Transaction>> result = analyticsService.getTransactionHistorySortedByAmount(null);
+        LinkedHashMap<String, List<TransactionDto>> result = analyticsService.getTransactionHistorySortedByAmount(null);
         assertTrue(result.isEmpty());
 
         // Нет транзакций типа PAYMENT
-        user.getBankAccounts().clear();
-        bankAccount1.getTransactions().clear();
-        bankAccount1.getTransactions().add(Transaction.hiddenBuilder()
+        userDto.getBankAccountDtos().clear();
+        bankAccountDto1.getTransactionDtos().clear();
+        bankAccountDto1.getTransactionDtos().add(TransactionDto.hiddenBuilder()
                 .id("6").amount(TEN_DOLLARS).type(TransactionType.DEPOSIT)
                 .category(BEAUTY_CATEGORY).createdDate(TEN_DAYS_AGO).build());
-        user.getBankAccounts().add(bankAccount1);
-        result = analyticsService.getTransactionHistorySortedByAmount(user);
+        userDto.getBankAccountDtos().add(bankAccountDto1);
+        result = analyticsService.getTransactionHistorySortedByAmount(userDto);
         assertTrue(result.isEmpty());
     }
 
     @Test
     public void get_last_n_transactions() {
-        List<Transaction> result = analyticsService.getLastNTransactions(user, 2);
+        List<TransactionDto> result = analyticsService.getLastNTransactions(userDto, 2);
         assertEquals(2, result.size());
 
         assertEquals("4", result.get(0).getId());
@@ -120,22 +120,22 @@ public class AnalyticsServiceTest {
 
     @Test
     public void get_last_n_transactions_invalid_input() {
-        List<Transaction> result = analyticsService.getLastNTransactions(null, 2);
+        List<TransactionDto> result = analyticsService.getLastNTransactions(null, 2);
         assertTrue(result.isEmpty());
 
         // Нет транзакций
-        user.getBankAccounts().clear();
-        result = analyticsService.getLastNTransactions(user, 2);
+        userDto.getBankAccountDtos().clear();
+        result = analyticsService.getLastNTransactions(userDto, 2);
         assertTrue(result.isEmpty());
     }
 
     @Test
     public void get_top_n_largest_transactions() {
-        PriorityQueue<Transaction> result = analyticsService.getTopNLargestTransactions(user, 2);
+        PriorityQueue<TransactionDto> result = analyticsService.getTopNLargestTransactions(userDto, 2);
         assertEquals(2, result.size());
 
-        Transaction first = result.poll();
-        Transaction second = result.poll();
+        TransactionDto first = result.poll();
+        TransactionDto second = result.poll();
 
         assertEquals(TWENTY_DOLLARS, first.getAmount());
         assertEquals(TWENTY_DOLLARS, second.getAmount());
@@ -144,40 +144,40 @@ public class AnalyticsServiceTest {
     @Test
     public void get_top_n_largest_transactions_invalid_input() {
         // Пользователь равен null
-        PriorityQueue<Transaction> result = analyticsService.getTopNLargestTransactions(null, 2);
+        PriorityQueue<TransactionDto> result = analyticsService.getTopNLargestTransactions(null, 2);
         assertTrue(result.isEmpty());
 
         // Нет транзакций типа PAYMENT
-        user.getBankAccounts().clear();
-        bankAccount1.getTransactions().clear();
-        bankAccount1.getTransactions().add(Transaction.hiddenBuilder().id("6").amount(TEN_DOLLARS).type(TransactionType.DEPOSIT)
+        userDto.getBankAccountDtos().clear();
+        bankAccountDto1.getTransactionDtos().clear();
+        bankAccountDto1.getTransactionDtos().add(TransactionDto.hiddenBuilder().id("6").amount(TEN_DOLLARS).type(TransactionType.DEPOSIT)
                 .category(BEAUTY_CATEGORY).createdDate(TEN_DAYS_AGO).build());
-        user.getBankAccounts().add(bankAccount1);
-        result = analyticsService.getTopNLargestTransactions(user, 2);
+        userDto.getBankAccountDtos().add(bankAccountDto1);
+        result = analyticsService.getTopNLargestTransactions(userDto, 2);
         assertTrue(result.isEmpty());
     }
 
     @Test
     public void analyze_performance() {
 
-        List<Transaction> transactions = user.getBankAccounts().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+        List<TransactionDto> transactionDtos = userDto.getBankAccountDtos().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
                 .collect(Collectors.toList());
 
         long startTime = System.currentTimeMillis();
-        transactions.stream()
+        transactionDtos.stream()
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
                 .filter(transaction -> transaction.getAmount().compareTo(new BigDecimal("1000")) > 0)
-                .sorted(Comparator.comparing(Transaction::getAmount))
+                .sorted(Comparator.comparing(TransactionDto::getAmount))
                 .count();
         long endTime = System.currentTimeMillis();
         System.out.println("Sequential stream time: " + (endTime - startTime) + " ms");
 
         startTime = System.currentTimeMillis();
-        transactions.parallelStream()
+        transactionDtos.parallelStream()
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
                 .filter(transaction -> transaction.getAmount().compareTo(new BigDecimal("1000")) > 0)
-                .sorted(Comparator.comparing(Transaction::getAmount))
+                .sorted(Comparator.comparing(TransactionDto::getAmount))
                 .count();
         endTime = System.currentTimeMillis();
         System.out.println("Parallel stream time: " + (endTime - startTime) + " ms");

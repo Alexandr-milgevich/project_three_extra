@@ -1,7 +1,7 @@
 package gigabank.accountmanagement.service;
 
-import gigabank.accountmanagement.models.dto.Transaction;
-import gigabank.accountmanagement.models.dto.User;
+import gigabank.accountmanagement.models.dto.TransactionDto;
+import gigabank.accountmanagement.models.dto.UserDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -55,18 +55,18 @@ public class TransactionService {
     /**
      * Фильтрует транзакции пользователя с использованием Predicate.
      *
-     * @param user      пользователь, чьи транзакции нужно отфильтровать
+     * @param userDto   пользователь, чьи транзакции нужно отфильтровать
      * @param predicate условие фильтрации транзакций
      * @return список транзакций, удовлетворяющих условию.
      * Возвращает пустой список, если user == null
      */
-    public List<Transaction> filterTransactions(User user, Predicate<Transaction> predicate) {
-        if (user == null) {
+    public List<TransactionDto> filterTransactions(UserDto userDto, Predicate<TransactionDto> predicate) {
+        if (userDto == null) {
             return Collections.emptyList();
         }
 
-        return user.getBankAccounts().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+        return userDto.getBankAccountDtos().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
                 .filter(predicate)
                 .collect(Collectors.toList());
     }
@@ -74,17 +74,17 @@ public class TransactionService {
     /**
      * Преобразует транзакции пользователя с использованием Function.
      *
-     * @param user     пользователь, чьи транзакции нужно преобразовать
+     * @param userDto  пользователь, чьи транзакции нужно преобразовать
      * @param function функция преобразования Transaction -> String
      * @return список строковых представлений транзакций.
      * Возвращает пустой список, если user == null
      */
-    public List<String> transformTransactions(User user, Function<Transaction, String> function) {
-        if (user == null) {
+    public List<String> transformTransactions(UserDto userDto, Function<TransactionDto, String> function) {
+        if (userDto == null) {
             return Collections.emptyList();
         }
-        return user.getBankAccounts().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+        return userDto.getBankAccountDtos().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
                 .map(function)
                 .collect(Collectors.toList());
 
@@ -93,16 +93,16 @@ public class TransactionService {
     /**
      * Обрабатывает транзакции пользователя с использованием Consumer.
      *
-     * @param user     пользователь, чьи транзакции нужно обработать
+     * @param userDto  пользователь, чьи транзакции нужно обработать
      * @param consumer функция обработки транзакций
      */
-    public void processTransactions(User user, Consumer<Transaction> consumer) {
-        if (user == null) {
+    public void processTransactions(UserDto userDto, Consumer<TransactionDto> consumer) {
+        if (userDto == null) {
             return;
         }
 
-        user.getBankAccounts().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+        userDto.getBankAccountDtos().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
                 .forEach(consumer);
     }
 
@@ -112,7 +112,7 @@ public class TransactionService {
      * @param supplier поставщик списка транзакций
      * @return созданный список транзакций
      */
-    public List<Transaction> createTransactionList(Supplier<List<Transaction>> supplier) {
+    public List<TransactionDto> createTransactionList(Supplier<List<TransactionDto>> supplier) {
         return supplier.get();
     }
 }
