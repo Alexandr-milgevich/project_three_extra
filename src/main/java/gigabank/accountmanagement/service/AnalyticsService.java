@@ -2,9 +2,11 @@ package gigabank.accountmanagement.service;
 
 import gigabank.accountmanagement.annotations.LogExecutionTime;
 import gigabank.accountmanagement.constants.TransactionType;
-import gigabank.accountmanagement.models.dto.BankAccountDto;
+import gigabank.accountmanagement.models.dto.Account;
 import gigabank.accountmanagement.models.dto.TransactionDto;
 import gigabank.accountmanagement.models.dto.UserDto;
+import gigabank.accountmanagement.utility.validators.ValidateAnalyticsService;
+import gigabank.accountmanagement.utility.validators.ValidateTransactionService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -20,25 +22,26 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class AnalyticsService {
-    private final TransactionService transactionService;
+    private final ValidateTransactionService validateTransactionService;
+    private final ValidateAnalyticsService validateAnalyticsService;
 
     /**
      * Вывод суммы потраченных средств на категорию за последний месяц
      *
-     * @param bankAccountDTO - счет
+     * @param account - счет
      * @param category       - категория
      */
     @LogExecutionTime
-    public BigDecimal getMonthlySpendingByCategory(BankAccountDto bankAccountDTO, String category) {
+    public BigDecimal getMonthlySpendingByCategory(Account account, String category) {
         BigDecimal totalSum = BigDecimal.ZERO;
 
-        if (bankAccountDTO == null || !transactionService.isValidCategory(category)) {
+        if (account == null || !validateAnalyticsService.hasValidCategory(category)) {
             return totalSum;
         }
 
         LocalDateTime oneMontAgo = LocalDateTime.now().minusMonths(1L);
 
-        totalSum = bankAccountDTO.getTransactionDtos().stream()
+        totalSum = account.getTransactionDto().stream()
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType())
                         && StringUtils.equals(transaction.getCategory(), category)
                         && transaction.getCreatedDate().isAfter(oneMontAgo))
@@ -59,15 +62,15 @@ public class AnalyticsService {
     @LogExecutionTime
     public Map<String, BigDecimal> getMonthlySpendingByCategories(UserDto userDto, Set<String> categories) {
         Map<String, BigDecimal> resultMap = new HashMap<>();
-        Set<String> validCategories = transactionService.validateCategories(categories);
+        Set<String> validCategories = validateTransactionService.validateCategories(categories);
         if (userDto == null || validCategories.isEmpty()) {
             return resultMap;
         }
 
         LocalDateTime oneMontAgo = LocalDateTime.now().minusMonths(1L);
 
-        resultMap = userDto.getBankAccountDtos().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
+        resultMap = userDto.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDto().stream())
                 .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType())
                         && validCategories.contains(transaction.getCategory())
                         && transaction.getCreatedDate().isAfter(oneMontAgo))
@@ -89,9 +92,9 @@ public class AnalyticsService {
             return resultMap;
         }
 
-        resultMap = userDto.getBankAccountDtos().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
-                .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
+        resultMap = userDto.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDto().stream())
+                .filter(validateAnalyticsService::isValidPaymentTransaction)
                 .sorted(Comparator.comparing(TransactionDto::getAmount))
                 .collect(Collectors.groupingBy(TransactionDto::getCategory, LinkedHashMap::new, Collectors.toList()));
 
@@ -111,8 +114,8 @@ public class AnalyticsService {
             return lastTransactionDtos;
         }
 
-        lastTransactionDtos = userDto.getBankAccountDtos().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
+        lastTransactionDtos = userDto.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDto().stream())
                 .sorted(Comparator.comparing(TransactionDto::getCreatedDate).reversed())
                 .limit(n)
                 .collect(Collectors.toList());
@@ -136,9 +139,9 @@ public class AnalyticsService {
             return transactionDtoPriorityQueue;
         }
 
-        transactionDtoPriorityQueue = userDto.getBankAccountDtos().stream()
-                .flatMap(bankAccount -> bankAccount.getTransactionDtos().stream())
-                .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
+        transactionDtoPriorityQueue = userDto.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactionDto().stream())
+                .filter(validateAnalyticsService::isValidPaymentTransaction)
                 .sorted(Comparator.comparing(TransactionDto::getAmount).reversed())
                 .limit(n)
                 .collect(Collectors.toCollection

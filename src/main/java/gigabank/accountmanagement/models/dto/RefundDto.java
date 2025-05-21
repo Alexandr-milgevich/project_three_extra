@@ -9,6 +9,7 @@ import java.math.BigDecimal;
  * Возврат по транзакции
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)

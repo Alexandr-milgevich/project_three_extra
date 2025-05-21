@@ -7,7 +7,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Аспект для логирования времени выполнения методов, помеченных аннотацией {@link LogExecutionTime}.
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * @see LogExecutionTime
  */
 @Aspect
-@Component
+@Service
 public class ExecutionTimeAspect {
     private static final Logger log = LoggerFactory.getLogger(ExecutionTimeAspect.class);
 

@@ -17,7 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Builder(builderMethodName = "hiddenBuilder")
+@Builder
 public class TransactionDto {
     @Builder.Default
     String id = UUID.randomUUID().toString();   //Уникальный идентификатор транзакции (генерируется автоматически).
