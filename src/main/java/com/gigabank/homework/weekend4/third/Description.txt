@@ -1,0 +1,5 @@
+### 3. Использование аннотаций `@Qualifier` и `@Value`
+
+1. Создайте несколько реализаций `NotificationService` (например, `EmailNotificationService`, `SmsNotificationService`).
+2. Внедрите конкретную реализацию с помощью `@Qualifier`.
+3. Используйте `@Value` для внедрения значений из `application.properties`, например, адреса почты отправителя.

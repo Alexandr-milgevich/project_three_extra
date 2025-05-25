@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/sql/user.sql
+  - include:
+      file: liquibase/sql/account.sql
+  - include:
+      file: liquibase/sql/transaction.sql
+  - include:
+      file: liquibase/sql/refund.sql
