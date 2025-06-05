@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface TransactionMapper {
+    //todo СДЕЛАЙ описание класса!
+
     @Mapping(target = "id", ignore = true)
     TransactionDto toDto(Transaction transaction);
 

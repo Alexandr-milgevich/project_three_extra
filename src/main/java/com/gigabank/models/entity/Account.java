@@ -17,6 +17,9 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "account")
 public class Account {
+
+    //todo СДЕЛАЙ описание класса!
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
@@ -27,7 +30,7 @@ public class Account {
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "uuid_user", referencedColumnName = "uuid")
+    @JoinColumn(name = "user_id", referencedColumnName = "uuid")
     User user;
 
     @JsonManagedReference

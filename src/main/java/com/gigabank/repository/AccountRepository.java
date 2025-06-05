@@ -8,6 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
+    //todo СДЕЛАЙ описание класса!
+
     Optional<Account> findById(Long id);
 
     int deleteById(Long id);

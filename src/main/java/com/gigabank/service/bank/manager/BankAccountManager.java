@@ -1,7 +1,7 @@
 package com.gigabank.service.bank.manager;
 
 import com.gigabank.models.dto.AccountDto;
-import com.gigabank.models.dto.request.UserRequestDto;
+import com.gigabank.models.dto.request.UserAnotherRequestDto;
 import com.gigabank.service.bank.manager.strategy.PaymentManagerStrategy;
 import com.gigabank.service.bank.manager.factory.PaymentManagerStrategyFactory;
 import com.gigabank.service.bank.service.BankAccountService;
@@ -34,10 +34,10 @@ public class BankAccountManager {
      * <li>Выполнение платежа через выбранную стратегию</li>
      * </p>
      *
-     * @param userRequestDtoList список платежных запросов ({@link UserRequestDto})
+     * @param userAnotherRequestDtoList список платежных запросов ({@link UserAnotherRequestDto})
      */
-    public void doWork(List<UserRequestDto> userRequestDtoList) {
-        for (UserRequestDto request : userRequestDtoList) {
+    public void doWork(List<UserAnotherRequestDto> userAnotherRequestDtoList) {
+        for (UserAnotherRequestDto request : userAnotherRequestDtoList) {
             AccountDto accountDto = bankAccountService.findAccountById(request.getAccountId());
             if (accountDto == null) {
                 System.out.println("No account found for ID: " + request.getAccountId());

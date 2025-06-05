@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AccountMapper {
+    //todo СДЕЛАЙ описание класса!
+
     @Mapping(target = "id", ignore = true)
     AccountDto toDto(Account account);
 

@@ -15,7 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserRequestDto {
+public class UserAnotherRequestDto {
     Integer accountId;
     BigDecimal amount;
     PaymentType paymentType;

@@ -16,6 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "user")
 public class User {
+    //todo СДЕЛАЙ описание класса!
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -33,7 +35,7 @@ public class User {
     @Column(name = "middleName")
     private String middleName;
 
-    @Column(name = "phoneNumber", nullable = false)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @Column(name = "birthDate", nullable = false)

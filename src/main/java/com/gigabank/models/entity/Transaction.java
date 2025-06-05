@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "transaction")
 public class Transaction {
+    //todo СДЕЛАЙ описание класса!
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,26 +32,26 @@ public class Transaction {
     @Column(name = "category")
     private String category;
 
-    @Column(name = "createdDate")
+    @Column(name = "created_date")
     private LocalDateTime createdDate;
     // Необязательные поля — зависят от источника оплаты
-    @Column(name = "bankName")
+    @Column(name = "bank_name")
     private String bankName;
 
-    @Column(name = "cardNumber")
+    @Column(name = "card_number")
     private String cardNumber;
 
-    @Column(name = "merchantName")
+    @Column(name = "merchant_name")
     private String merchantName;
 
-    @Column(name = "digitalWalletId")
+    @Column(name = "digital_wallet_id")
     private String digitalWalletId;
 
-    @Column(name = "merchantCategoryCode")
+    @Column(name = "merchant_category_code")
     private String merchantCategoryCode;
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "uuid_account", referencedColumnName = "uuid")
+    @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     Account account;
 }

@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Table(name = "refund")
 public class Refund {
+    //todo СДЕЛАЙ описание класса!
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "refund_id")
@@ -24,6 +26,6 @@ public class Refund {
     @Column(name = "description")
     String description;
 
-    @Column(name = "transactionUuid")
+    @Column(name = "transaction_id")
     String transactionUuid;
 }

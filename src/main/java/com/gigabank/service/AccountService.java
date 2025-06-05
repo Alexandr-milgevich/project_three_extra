@@ -17,6 +17,8 @@ import static com.gigabank.utility.Utility.isFilled;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
+    //todo Сделай описание класса
+
     private final AccountRepository accountRepository;
     private final ValidateAccountService validateAccountService;
 

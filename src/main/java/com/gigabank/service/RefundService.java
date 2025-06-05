@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RefundService {
+    //todo Дополни методы + описание к ним
+    //todo Добавь методы update для всех полей User
 
     /**
      * Метод для создания возврата.

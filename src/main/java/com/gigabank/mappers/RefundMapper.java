@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface RefundMapper {
+    //todo СДЕЛАЙ описание класса!
+
     @Mapping(target = "id", ignore = true)
     RefundDto toDto(Refund refund);
 

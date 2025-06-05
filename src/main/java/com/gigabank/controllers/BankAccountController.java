@@ -11,13 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BankAccountController {
 
-/*
-- POST /accounts — создать новый аккаунт
-- GET /accounts/{id} — получить данные аккаунта
-- POST /accounts/{id}/deposit — пополнить баланс
-- POST /accounts/{id}/withdraw — снять средства
-- GET /accounts/{id}/transactions — получить историю операций
- */
+
 
 
     /*
