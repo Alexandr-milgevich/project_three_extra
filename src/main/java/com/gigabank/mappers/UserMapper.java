@@ -1,5 +1,6 @@
 package com.gigabank.mappers;
 
+import com.gigabank.models.dto.request.user.UserCreateRequestDto;
 import com.gigabank.models.dto.request.user.UserRequestDto;
 import com.gigabank.models.dto.request.user.UserUpdateRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
@@ -31,6 +32,9 @@ public interface UserMapper {
      * @return DTO пользователя
      */
     UserResponseDto toDto(User user);
+
+    User toCreateEntity(UserCreateRequestDto userCreateRequestDto);
+
 
     /**
      * Обновляет сущность пользователя данными из DTO.

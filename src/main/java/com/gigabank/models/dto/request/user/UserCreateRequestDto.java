@@ -21,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserRequestDto {
+public class UserCreateRequestDto {
     @NotBlank(message = "Не указана эл. почта")
     @Email(message = "email должен быть корректным")
     String email;
@@ -41,6 +41,5 @@ public class UserRequestDto {
     @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     LocalDate birthDate;
 
-    @NotNull(message = "У пользователя должен быть счет")
     List<AccountDto> listAccountDto = new ArrayList<>();
 }

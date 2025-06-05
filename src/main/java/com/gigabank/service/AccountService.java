@@ -23,12 +23,13 @@ public class AccountService {
     private final ValidateAccountService validateAccountService;
 
     @Transactional
-    public void create() {
+    public Account create() {
         Account account = Account.builder()
                 .balance(BigDecimal.ZERO)
                 .build();
 
         log.info("Создан счет с UUID: {}", account.getId());
+        return accountRepository.save(account);
     }
 
     public void updateBalance(Account account, BigDecimal balance) {

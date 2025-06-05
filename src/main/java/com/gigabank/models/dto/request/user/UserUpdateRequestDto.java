@@ -1,13 +1,14 @@
 package com.gigabank.models.dto.request.user;
 
+import com.gigabank.models.dto.AccountDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DTO для обновления данных существующего пользователя.
@@ -17,15 +18,18 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserUpdateRequestDto {
     @Email
-    private String email;
+    String email;
 
-    private String lastName;
-    private String firstName;
-    private String middleName;
-    private String phoneNumber;
+    String lastName;
+    String firstName;
+    String middleName;
+    String phoneNumber;
 
     @Past
-    private LocalDate birthDate;
+    LocalDate birthDate;
+
+    List<AccountDto> listAccountDto = new ArrayList<>();
 }

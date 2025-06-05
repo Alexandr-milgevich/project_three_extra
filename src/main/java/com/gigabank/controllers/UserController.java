@@ -3,8 +3,7 @@ package com.gigabank.controllers;
 import com.gigabank.exceptions.User.UserAlreadyExistsException;
 import com.gigabank.exceptions.User.UserNotFoundException;
 import com.gigabank.exceptions.User.UserValidationException;
-import com.gigabank.mappers.UserMapper;
-import com.gigabank.models.dto.request.user.UserRequestDto;
+import com.gigabank.models.dto.request.user.UserCreateRequestDto;
 import com.gigabank.models.dto.request.user.UserUpdateRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
 import com.gigabank.service.UserService;
@@ -34,9 +33,9 @@ public class UserController {
      * @throws UserValidationException    если данные пользователя не прошли валидацию
      * @throws UserAlreadyExistsException если пользователь с таким email или телефоном уже существует
      */
-    @PostMapping
+    @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto createUser(@Valid @RequestBody UserRequestDto requestDto) {
+    public UserResponseDto createUser(@Valid @RequestBody UserCreateRequestDto requestDto) {
         return userService.createUser(requestDto);
     }
 
@@ -103,9 +102,3 @@ public class UserController {
         userService.deleteUserByEmail(email);
     }
 }
-
-//todo СДЕЛАЙ описание контроллера + добавить методы по обновлению данных пользователя!
-//todo @RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
-//todo @RequestParam(name = "pageSize", defaultValue = "20") int pageSize
-
-//todo Почитать про статусы по возвращению сущности @ResponseStatus(HttpStatus.)

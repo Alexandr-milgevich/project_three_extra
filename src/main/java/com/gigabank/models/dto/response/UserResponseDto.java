@@ -17,8 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponseDto {
-    //todo СДЕЛАЙ описание класса!
-
     Long id;
     String email;
     String lastName;
@@ -26,5 +24,5 @@ public class UserResponseDto {
     String middleName;
     String phoneNumber;
     LocalDate birthDate;
-    private List<AccountDto> accounts;
+    List<AccountDto> accounts;
 }

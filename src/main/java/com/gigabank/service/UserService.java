@@ -4,9 +4,11 @@ import com.gigabank.exceptions.User.UserAlreadyExistsException;
 import com.gigabank.exceptions.User.UserNotFoundException;
 import com.gigabank.exceptions.User.UserValidationException;
 import com.gigabank.mappers.UserMapper;
+import com.gigabank.models.dto.request.user.UserCreateRequestDto;
 import com.gigabank.models.dto.request.user.UserRequestDto;
 import com.gigabank.models.dto.request.user.UserUpdateRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
+import com.gigabank.models.entity.Account;
 import com.gigabank.models.entity.User;
 import com.gigabank.repository.UserRepository;
 import com.gigabank.utility.validators.ValidateUserBeforeSave;
@@ -15,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.gigabank.utility.Utility.isFilled;
@@ -32,25 +36,34 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final ValidateUserBeforeSave validateUserBeforeSave;
+    private final AccountService accountService;
 
     /**
      * Создает нового пользователя в системе.
      *
-     * @param requestDto DTO с данными для создания пользователя
+     * @param userCreateRequestDto DTO с данными для создания пользователя
      * @return DTO созданного пользователя
      * @throws UserAlreadyExistsException если пользователь с таким email или телефоном уже существует
      * @throws UserValidationException если данные пользователя не прошли валидацию
      */
     @Transactional
-    public UserResponseDto createUser(UserRequestDto requestDto) {
-        User user = userMapper.toEntity(requestDto);
+    public UserResponseDto createUser(UserCreateRequestDto userCreateRequestDto) {
+        User user = userMapper.toCreateEntity(userCreateRequestDto);
 
         validateUserBeforeSave.validateUserData(user);
         validateUserBeforeSave.checkEmailAndPhoneUniqueness(user.getEmail(), user.getPhoneNumber());
 
-        User savedUser = userRepository.save(user);
-        log.info("Пользователь с id {} был создан.", savedUser.getId());
-        return userMapper.toDto(savedUser);
+        Account accountUser = accountService.create();
+
+        user.setListAccounts(List.of(accountUser));
+        accountUser.setUser(user);
+        accountUser.setListTransactions(new ArrayList<>());
+
+        userRepository.save(user);
+
+        log.info("Пользователь с id {} был создан.", user.getId());
+
+        return userMapper.toDto(user);
     }
 
     /**
