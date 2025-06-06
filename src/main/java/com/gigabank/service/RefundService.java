@@ -1,6 +1,6 @@
 package com.gigabank.service;
 
-import com.gigabank.models.dto.RefundDto;
+import com.gigabank.models.dto.response.RefundResponseDto;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,10 +13,10 @@ public class RefundService {
      * Метод для создания возврата.
      * Получает данные возврата и вызывает метод возврата на единственном экземпляре {@link PaymentGatewayService}.
      *
-     * @param refundDto объект возврата, содержащий информацию о транзакции.
+     * @param refundResponseDto объект возврата, содержащий информацию о транзакции.
      */
-    public void createRefund(RefundDto refundDto) {
+    public void createRefund(RefundResponseDto refundResponseDto) {
         PaymentGatewayService paymentGatewayService = PaymentGatewayService.getInstance();
-        paymentGatewayService.refund(refundDto.getDescription(), refundDto.getAmount());
+        paymentGatewayService.refund(refundResponseDto.getDescription(), refundResponseDto.getAmount());
     }
 }

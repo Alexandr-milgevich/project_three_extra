@@ -24,7 +24,7 @@ import static com.gigabank.utility.Utility.isFilled;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ValidateUserBeforeSave {
+public class ValidateUserService {
     private final UserRepository userRepository;
 
     /**
@@ -33,7 +33,7 @@ public class ValidateUserBeforeSave {
      * @param user объект пользователя для валидации
      * @throws UserValidationException если какое-либо из обязательных полей не прошло проверку
      */
-    public void validateUserData(User user) {
+    public void validateDataBeforeSave(User user) {
         checkEmail(user.getEmail());
         checkPhoneNumber(user.getPhoneNumber());
         checkLastName(user.getLastName());

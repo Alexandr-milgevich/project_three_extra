@@ -3,8 +3,8 @@ package com.gigabank.controllers;
 import com.gigabank.exceptions.User.UserAlreadyExistsException;
 import com.gigabank.exceptions.User.UserNotFoundException;
 import com.gigabank.exceptions.User.UserValidationException;
-import com.gigabank.models.dto.request.user.UserCreateRequestDto;
-import com.gigabank.models.dto.request.user.UserUpdateRequestDto;
+import com.gigabank.models.dto.request.user.CreateUserRequestDto;
+import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
 import com.gigabank.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,15 +28,15 @@ public class UserController {
     /**
      * Регистрирует нового пользователя.
      *
-     * @param requestDto DTO с данными для создания пользователя
+     * @param createDto DTO с данными для создания пользователя
      * @return DTO созданного пользователя
      * @throws UserValidationException    если данные пользователя не прошли валидацию
      * @throws UserAlreadyExistsException если пользователь с таким email или телефоном уже существует
      */
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDto createUser(@Valid @RequestBody UserCreateRequestDto requestDto) {
-        return userService.createUser(requestDto);
+    public UserResponseDto createUser(@Valid @RequestBody CreateUserRequestDto createDto) {
+        return userService.createUser(createDto);
     }
 
     /**
@@ -74,7 +74,7 @@ public class UserController {
      */
     @PutMapping("/update/{id}")
     public UserResponseDto updateUser(@PathVariable Long id,
-                                      @Valid @RequestBody UserUpdateRequestDto updateDto) {
+                                      @Valid @RequestBody UpdateUserRequestDto updateDto) {
         return userService.updateUser(id, updateDto);
     }
 
@@ -84,7 +84,7 @@ public class UserController {
      * @param id идентификатор пользователя
      * @throws UserNotFoundException если пользователь с данным id не найден
      */
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete/id/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
@@ -96,9 +96,21 @@ public class UserController {
      * @param email email пользователя
      * @throws UserNotFoundException если пользователь с данным email не найден
      */
-    @DeleteMapping("/delete/{email}")
+    @DeleteMapping("/delete/email/{email}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUserByEmail(@PathVariable String email) {
         userService.deleteUserByEmail(email);
+    }
+
+    /**
+     * Удаляет пользователя по email.
+     *
+     * @param phoneNumber номер телефона пользователя
+     * @throws UserNotFoundException если пользователь с данным email не найден
+     */
+    @DeleteMapping("/delete/phoneNumber/{phoneNumber}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUserByPhoneNumber(@PathVariable String phoneNumber) {
+        userService.deleteUserByPhoneNumber(phoneNumber);
     }
 }

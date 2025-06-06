@@ -1,10 +1,11 @@
 package com.gigabank.service.bank.manager;
 
-import com.gigabank.models.dto.AccountDto;
-import com.gigabank.models.dto.request.UserAnotherRequestDto;
-import com.gigabank.service.bank.manager.strategy.PaymentManagerStrategy;
+import com.gigabank.mappers.AccountMapper;
+import com.gigabank.models.dto.request.user.UserAnotherRequestDto;
+import com.gigabank.models.dto.response.AccountResponseDto;
+import com.gigabank.service.AccountService;
 import com.gigabank.service.bank.manager.factory.PaymentManagerStrategyFactory;
-import com.gigabank.service.bank.service.BankAccountService;
+import com.gigabank.service.bank.manager.strategy.PaymentManagerStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BankAccountManager {
     private final PaymentManagerStrategyFactory paymentManagerStrategyFactory;
-    private final BankAccountService bankAccountService;
+    private final AccountService accountService;
+    private final AccountMapper accountMapper;
 
     /**
      * Обрабатывает список платежных запросов.
@@ -38,13 +40,13 @@ public class BankAccountManager {
      */
     public void doWork(List<UserAnotherRequestDto> userAnotherRequestDtoList) {
         for (UserAnotherRequestDto request : userAnotherRequestDtoList) {
-            AccountDto accountDto = bankAccountService.findAccountById(request.getAccountId());
+            AccountResponseDto accountDto = accountService.getAccountById(request.getAccountId());
             if (accountDto == null) {
                 System.out.println("No account found for ID: " + request.getAccountId());
                 continue;
             }
             PaymentManagerStrategy paymentManagerStrategy = paymentManagerStrategyFactory.getPaymentStrategy(request.getPaymentType());
-            paymentManagerStrategy.process(accountDto, request);
+            paymentManagerStrategy.process(accountMapper.toRequestDto(accountDto), request);
         }
     }
 }

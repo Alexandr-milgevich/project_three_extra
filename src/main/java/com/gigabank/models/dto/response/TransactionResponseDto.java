@@ -1,4 +1,4 @@
-package com.gigabank.models.dto;
+package com.gigabank.models.dto.response;
 
 import com.gigabank.constants.TransactionType;
 import jakarta.validation.constraints.*;
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class TransactionDto {
+public class TransactionResponseDto {
     @NotNull
     @PositiveOrZero
     Long id;

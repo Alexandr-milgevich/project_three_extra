@@ -4,20 +4,18 @@ import com.gigabank.exceptions.User.UserAlreadyExistsException;
 import com.gigabank.exceptions.User.UserNotFoundException;
 import com.gigabank.exceptions.User.UserValidationException;
 import com.gigabank.mappers.UserMapper;
-import com.gigabank.models.dto.request.user.UserCreateRequestDto;
-import com.gigabank.models.dto.request.user.UserRequestDto;
-import com.gigabank.models.dto.request.user.UserUpdateRequestDto;
+import com.gigabank.models.dto.request.user.CreateUserRequestDto;
+import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
 import com.gigabank.models.entity.Account;
 import com.gigabank.models.entity.User;
 import com.gigabank.repository.UserRepository;
-import com.gigabank.utility.validators.ValidateUserBeforeSave;
+import com.gigabank.utility.validators.ValidateUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,34 +33,29 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-    private final ValidateUserBeforeSave validateUserBeforeSave;
+    private final ValidateUserService validator;
     private final AccountService accountService;
 
     /**
      * Создает нового пользователя в системе.
      *
-     * @param userCreateRequestDto DTO с данными для создания пользователя
+     * @param createUserRequestDto DTO с данными для создания пользователя
      * @return DTO созданного пользователя
      * @throws UserAlreadyExistsException если пользователь с таким email или телефоном уже существует
-     * @throws UserValidationException если данные пользователя не прошли валидацию
+     * @throws UserValidationException    если данные пользователя не прошли валидацию
      */
     @Transactional
-    public UserResponseDto createUser(UserCreateRequestDto userCreateRequestDto) {
-        User user = userMapper.toCreateEntity(userCreateRequestDto);
+    public UserResponseDto createUser(CreateUserRequestDto createUserRequestDto) {
+        User user = userMapper.toEntity(createUserRequestDto);
+        validator.validateDataBeforeSave(user);
+        validator.checkEmailAndPhoneUniqueness(user.getEmail(), user.getPhoneNumber());
 
-        validateUserBeforeSave.validateUserData(user);
-        validateUserBeforeSave.checkEmailAndPhoneUniqueness(user.getEmail(), user.getPhoneNumber());
-
-        Account accountUser = accountService.create();
-
-        user.setListAccounts(List.of(accountUser));
-        accountUser.setUser(user);
-        accountUser.setListTransactions(new ArrayList<>());
+        Account account = accountService.createInitialAccount(user);
+        user.setListAccounts(List.of(account));
 
         userRepository.save(user);
 
         log.info("Пользователь с id {} был создан.", user.getId());
-
         return userMapper.toDto(user);
     }
 
@@ -108,19 +101,19 @@ public class UserService {
     /**
      * Обновляет данные пользователя.
      *
-     * @param id идентификатор пользователя
+     * @param id        идентификатор пользователя
      * @param updateDto DTO с обновленными данными
      * @return DTO обновленного пользователя
-     * @throws UserNotFoundException если пользователь не найден
+     * @throws UserNotFoundException   если пользователь не найден
      * @throws UserValidationException если данные не прошли валидацию
      */
     @Transactional
-    public UserResponseDto updateUser(Long id, UserUpdateRequestDto updateDto) {
+    public UserResponseDto updateUser(Long id, UpdateUserRequestDto updateDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
 
         userMapper.updateFromDto(updateDto, user);
-        validateUserBeforeSave.validateUserData(user);
+        validator.validateDataBeforeSave(user);
 
         User updatedUser = userRepository.save(user);
         return userMapper.toDto(updatedUser);
@@ -137,7 +130,7 @@ public class UserService {
         if (Objects.isNull(user)) {
             throw new UserValidationException("Пользователя не существует!");
         }
-        validateUserBeforeSave.validateUserData(user);
+        validator.validateDataBeforeSave(user);
         if (Objects.isNull(user.getListAccounts()) || user.getListAccounts().isEmpty()) {
             throw new UserValidationException("У пользователя отсутствуют счета");
         }
@@ -151,7 +144,7 @@ public class UserService {
      *
      * @param id идентификатор пользователя
      * @throws UserValidationException если id равен null
-     * @throws UserNotFoundException если пользователь не найден
+     * @throws UserNotFoundException   если пользователь не найден
      */
     @Transactional
     public void deleteUserById(Long id) {
@@ -171,7 +164,7 @@ public class UserService {
      *
      * @param email email пользователя
      * @throws UserValidationException если email пустой
-     * @throws UserNotFoundException если пользователь не найден
+     * @throws UserNotFoundException   если пользователь не найден
      */
     @Transactional
     public void deleteUserByEmail(String email) {
@@ -191,7 +184,7 @@ public class UserService {
      *
      * @param phoneNumber номер телефона пользователя
      * @throws UserValidationException если номер телефона пустой
-     * @throws UserNotFoundException если пользователь не найден
+     * @throws UserNotFoundException   если пользователь не найден
      */
     @Transactional
     public void deleteUserByPhoneNumber(String phoneNumber) {

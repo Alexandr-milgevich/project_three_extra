@@ -1,6 +1,6 @@
 package com.gigabank.proxy;
 
-import com.gigabank.models.dto.AccountDto;
+import com.gigabank.models.dto.request.account.AccountRequestDto;
 import com.gigabank.service.bank.service.BankAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,12 +22,12 @@ public class SecurityLoggingProxy {
     /**
      * Обрабатывает платеж картой с проверкой доступа.
      *
-     * @param accountDto      банковский счет для списания
+     * @param accountDto   банковский счет для списания
      * @param amount       сумма платежа
      * @param cardNumber   номер карты (последние 4 цифры)
      * @param merchantName название мерчанта
      */
-    public void processCardPayment(AccountDto accountDto, BigDecimal amount, String cardNumber, String merchantName) {
+    public void processCardPayment(AccountRequestDto accountDto, BigDecimal amount, String cardNumber, String merchantName) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
 
@@ -42,11 +42,11 @@ public class SecurityLoggingProxy {
     /**
      * Обрабатывает банковский перевод с проверкой доступа.
      *
-     * @param accountDto  банковский счет для списания
-     * @param amount   сумма перевода
-     * @param bankName название банка-получателя
+     * @param accountDto банковский счет для списания
+     * @param amount     сумма перевода
+     * @param bankName   название банка-получателя
      */
-    public void processBankTransfer(AccountDto accountDto, BigDecimal amount, String bankName) {
+    public void processBankTransfer(AccountRequestDto accountDto, BigDecimal amount, String bankName) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
 
@@ -61,11 +61,11 @@ public class SecurityLoggingProxy {
     /**
      * Обрабатывает платеж через электронный кошелек с проверкой доступа.
      *
-     * @param accountDto  банковский счет для списания
-     * @param amount   сумма платежа
-     * @param walletId идентификатор электронного кошелька
+     * @param accountDto банковский счет для списания
+     * @param amount     сумма платежа
+     * @param walletId   идентификатор электронного кошелька
      */
-    public void processWalletPayment(AccountDto accountDto, BigDecimal amount, String walletId) {
+    public void processWalletPayment(AccountRequestDto accountDto, BigDecimal amount, String walletId) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
 
@@ -77,4 +77,3 @@ public class SecurityLoggingProxy {
         }
     }
 }
-

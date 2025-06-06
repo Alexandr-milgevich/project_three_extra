@@ -1,6 +1,5 @@
 package com.gigabank.models.dto.response;
 
-import com.gigabank.models.dto.AccountDto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -24,5 +23,5 @@ public class UserResponseDto {
     String middleName;
     String phoneNumber;
     LocalDate birthDate;
-    List<AccountDto> accounts;
+    List<AccountResponseDto> listAccountDto;
 }

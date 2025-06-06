@@ -9,6 +9,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Сущность банковского счета.
+ * Хранит информацию о балансе, владельце и связанных транзакциях.
+ */
 @Entity
 @Getter
 @Setter
@@ -17,8 +21,6 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "account")
 public class Account {
-    //todo СДЕЛАЙ описание класса!
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")

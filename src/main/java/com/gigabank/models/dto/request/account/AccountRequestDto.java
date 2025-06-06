@@ -1,5 +1,7 @@
-package com.gigabank.models.dto;
+package com.gigabank.models.dto.request.account;
 
+import com.gigabank.models.dto.response.TransactionResponseDto;
+import com.gigabank.models.dto.response.UserResponseDto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -11,14 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Информация о банковском счете пользователя
+ * DTO для запроса по работе со счетом.
+ * Содержит данные для совершения операций со счетом.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AccountDto {
+public class AccountRequestDto {
     @NotNull
     @PositiveOrZero
     Long id;
@@ -27,7 +30,8 @@ public class AccountDto {
     BigDecimal balance;
 
     @NotEmpty(message = "Счет должен быть привязан к пользователю")
-    UserDto userDto;
+    UserResponseDto userResponseDto;
 
-    List<TransactionDto> listTransactionDto = new ArrayList<>();
+    @NotEmpty(message = "У счета должен быть список транзакций")
+    List<TransactionResponseDto> listTransactionResponseDto = new ArrayList<>();
 }

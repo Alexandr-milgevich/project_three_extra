@@ -1,7 +1,7 @@
 package com.gigabank.service.bank.manager.strategy;
 
-import com.gigabank.models.dto.AccountDto;
-import com.gigabank.models.dto.request.UserAnotherRequestDto;
+import com.gigabank.models.dto.request.user.UserAnotherRequestDto;
+import com.gigabank.models.dto.request.account.AccountRequestDto;
 
 /**
  * Интерфейс стратегии обработки платежей.
@@ -25,8 +25,8 @@ public interface PaymentManagerStrategy {
      * включая валидацию, авторизацию, выполнение операции и отправку уведомлений.
      * </p>
      *
-     * @param accountDto банковский счет ({@link AccountDto}), участвующий в операции
-     * @param request данные платежного запроса ({@link UserAnotherRequestDto})
+     * @param accountDto банковский счет ({@link AccountRequestDto}), участвующий в операции
+     * @param request    данные платежного запроса ({@link UserAnotherRequestDto})
      */
-    void process(AccountDto accountDto, UserAnotherRequestDto request);
+    void process(AccountRequestDto accountDto, UserAnotherRequestDto request);
 }

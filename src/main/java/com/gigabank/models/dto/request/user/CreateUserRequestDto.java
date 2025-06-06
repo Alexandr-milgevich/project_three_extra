@@ -1,6 +1,10 @@
-package com.gigabank.models.dto;
+package com.gigabank.models.dto.request.user;
 
-import jakarta.validation.constraints.*;
+import com.gigabank.models.dto.response.AccountResponseDto;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -9,18 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Информация о пользователе
+ * DTO для создания нового пользователя.
+ * Содержит обязательные данные для регистрации нового пользователя.
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserDto {
-    @NotNull
-    @PositiveOrZero
-    Long id;
-
+public class CreateUserRequestDto {
     @NotBlank(message = "Не указана эл. почта")
     @Email(message = "email должен быть корректным")
     String email;
@@ -31,14 +32,14 @@ public class UserDto {
     @NotBlank(message = "Не указано имя")
     String firstName;
 
+    String middleName;
+
     @NotBlank(message = "Не указан номер телефона")
     String phoneNumber;
 
-    @NotBlank(message = "Дата рождения не указана.")
+    @NotNull(message = "Дата рождения не указана.")
     @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     LocalDate birthDate;
 
-    String middleName;
-
-    List<AccountDto> listAccountDto = new ArrayList<>();
+    List<AccountResponseDto> listAccountDto = new ArrayList<>();
 }

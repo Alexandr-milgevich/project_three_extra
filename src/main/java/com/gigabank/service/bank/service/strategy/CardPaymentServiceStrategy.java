@@ -1,6 +1,6 @@
 package com.gigabank.service.bank.service.strategy;
 
-import com.gigabank.models.dto.AccountDto;
+import com.gigabank.models.dto.request.account.AccountRequestDto;
 import com.gigabank.service.PaymentGatewayService;
 import com.gigabank.service.notification.NotificationAdapter;
 import com.gigabank.service.transaction.strategy.CardPaymentTransactionStrategy;
@@ -36,18 +36,18 @@ public class CardPaymentServiceStrategy implements PaymentServiceStrategy {
      *
      * <p>Основные шаги:</p>
      * <ul>
-     *   <li>Списание суммы с баланса счета {@link AccountDto}</li>
+     *   <li>Списание суммы с баланса счета {@link AccountRequestDto}</li>
      *   <li>Создание транзакции платежа</li>
      *   <li>Авторизация операции</li>
      *   <li>Отправка уведомления клиенту</li>
      * </ul>
      *
-     * @param accountDto банковский счет ({@link AccountDto})
-     * @param amount  сумма платежа ({@link BigDecimal})
-     * @param details дополнительные параметры платежа
+     * @param accountDto банковский счет ({@link AccountRequestDto})
+     * @param amount     сумма платежа ({@link BigDecimal})
+     * @param details    дополнительные параметры платежа
      */
     @Override
-    public void process(AccountDto accountDto, BigDecimal amount, Map<String, String> details) {
+    public void process(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         accountDto.setBalance(accountDto.getBalance().subtract(amount));
 
         processCreateTransaction(accountDto, amount, new CardPaymentTransactionStrategy(), details);
@@ -55,7 +55,7 @@ public class CardPaymentServiceStrategy implements PaymentServiceStrategy {
         System.out.println("Processed card payment for account " + accountDto.getId());
         paymentGatewayService.authorize("Платеж по карте", amount);
         notificationAdapter.sendAllNotificationToUser(
-                accountDto.getUserDto(),
+                accountDto.getUserResponseDto(),
                 "Произошел платеж по карте",
                 "Информация о платеже",
                 "Произошел платеж по карте");
@@ -67,12 +67,12 @@ public class CardPaymentServiceStrategy implements PaymentServiceStrategy {
      * <p>Использует указанную стратегию {@link TransactionStrategy}
      * для обработки транзакции.</p>
      *
-     * @param accountDto  банковский счет ({@link AccountDto})
-     * @param amount   сумма платежа ({@link BigDecimal})
-     * @param strategy стратегия обработки транзакции
-     * @param details  дополнительные параметры платежа
+     * @param accountDto банковский счет ({@link AccountRequestDto})
+     * @param amount     сумма платежа ({@link BigDecimal})
+     * @param strategy   стратегия обработки транзакции
+     * @param details    дополнительные параметры платежа
      */
-    private void processCreateTransaction(AccountDto accountDto, BigDecimal amount,
+    private void processCreateTransaction(AccountRequestDto accountDto, BigDecimal amount,
                                           TransactionStrategy strategy,
                                           Map<String, String> details) {
         strategy.process(accountDto, amount, details);

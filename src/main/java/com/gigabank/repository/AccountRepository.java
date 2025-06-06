@@ -6,10 +6,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Репозиторий для работы с банковскими счетами.
+ * Обеспечивает доступ к данным счетов в базе данных.
+ */
 @Repository
 public interface AccountRepository extends JpaRepository<Account, String> {
-    //todo СДЕЛАЙ описание класса!
-
     Optional<Account> findById(Long id);
 
     int deleteById(Long id);

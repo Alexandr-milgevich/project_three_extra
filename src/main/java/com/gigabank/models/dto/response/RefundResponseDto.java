@@ -1,4 +1,4 @@
-package com.gigabank.models.dto;
+package com.gigabank.models.dto.response;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class RefundDto {
+public class RefundResponseDto {
     @NotNull
     @PositiveOrZero
     Long id;

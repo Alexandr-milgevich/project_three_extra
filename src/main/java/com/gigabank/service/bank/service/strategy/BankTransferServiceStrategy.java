@@ -1,6 +1,6 @@
 package com.gigabank.service.bank.service.strategy;
 
-import com.gigabank.models.dto.AccountDto;
+import com.gigabank.models.dto.request.account.AccountRequestDto;
 import com.gigabank.service.PaymentGatewayService;
 import com.gigabank.service.notification.NotificationAdapter;
 import com.gigabank.service.transaction.strategy.BankTransferTransactionStrategy;
@@ -36,25 +36,25 @@ public class BankTransferServiceStrategy implements PaymentServiceStrategy {
      *
      * <p>Основные шаги:</p>
      * <ul>
-     *   <li>Списание суммы с баланса счета {@link AccountDto}</li>
+     *   <li>Списание суммы с баланса счета {@link AccountRequestDto}</li>
      *   <li>Создание транзакции перевода</li>
      *   <li>Авторизация операции</li>
      *   <li>Отправка уведомления клиенту</li>
      * </ul>
      *
-     * @param accountDto банковский счет ({@link AccountDto})
-     * @param amount  сумма перевода ({@link BigDecimal})
-     * @param details дополнительные параметры перевода
+     * @param accountDto банковский счет ({@link AccountRequestDto})
+     * @param amount     сумма перевода ({@link BigDecimal})
+     * @param details    дополнительные параметры перевода
      */
     @Override
-    public void process(AccountDto accountDto, BigDecimal amount, Map<String, String> details) {
+    public void process(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         accountDto.setBalance(accountDto.getBalance().subtract(amount));
         processCreateTransaction(accountDto, amount, new BankTransferTransactionStrategy(), details);
 
         System.out.println("Processed bank transfer for account " + accountDto.getId());
         paymentGatewayService.authorize("Банковский перевод", amount);
         notificationAdapter.sendAllNotificationToUser(
-                accountDto.getUserDto(),
+                accountDto.getUserResponseDto(),
                 "Произошел банковский перевод",
                 "Информация о платеже",
                 "Произошел банковский перевод");
@@ -66,12 +66,12 @@ public class BankTransferServiceStrategy implements PaymentServiceStrategy {
      * <p>Использует указанную стратегию {@link TransactionStrategy}
      * для обработки транзакции.</p>
      *
-     * @param accountDto  банковский счет ({@link AccountDto})
-     * @param amount   сумма перевода ({@link BigDecimal})
-     * @param strategy стратегия обработки транзакции
-     * @param details  дополнительные параметры перевода
+     * @param accountDto банковский счет ({@link AccountRequestDto})
+     * @param amount     сумма перевода ({@link BigDecimal})
+     * @param strategy   стратегия обработки транзакции
+     * @param details    дополнительные параметры перевода
      */
-    private void processCreateTransaction(AccountDto accountDto, BigDecimal amount,
+    private void processCreateTransaction(AccountRequestDto accountDto, BigDecimal amount,
                                           TransactionStrategy strategy,
                                           Map<String, String> details) {
         strategy.process(accountDto, amount, details);

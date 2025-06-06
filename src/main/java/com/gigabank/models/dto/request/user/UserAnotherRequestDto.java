@@ -1,4 +1,4 @@
-package com.gigabank.models.dto.request;
+package com.gigabank.models.dto.request.user;
 
 import com.gigabank.constants.PaymentType;
 import lombok.*;
@@ -16,7 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserAnotherRequestDto {
-    Integer accountId;
+    Long accountId;
     BigDecimal amount;
     PaymentType paymentType;
     Map<String, String> paymentDetails;

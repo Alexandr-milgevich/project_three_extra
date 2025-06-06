@@ -1,6 +1,6 @@
 package com.gigabank.mappers;
 
-import com.gigabank.models.dto.TransactionDto;
+import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.entity.Transaction;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -10,7 +10,7 @@ public interface TransactionMapper {
     //todo СДЕЛАЙ описание класса!
 
     @Mapping(target = "id", ignore = true)
-    TransactionDto toDto(Transaction transaction);
+    TransactionResponseDto toDto(Transaction transaction);
 
-    Transaction toEntity(TransactionDto transactionDto);
+    Transaction toEntity(TransactionResponseDto transactionResponseDto);
 }

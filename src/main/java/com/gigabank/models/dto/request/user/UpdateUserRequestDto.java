@@ -1,6 +1,6 @@
 package com.gigabank.models.dto.request.user;
 
-import com.gigabank.models.dto.AccountDto;
+import com.gigabank.models.dto.response.AccountResponseDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;
 import lombok.*;
@@ -19,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequestDto {
+public class UpdateUserRequestDto {
     @Email
     String email;
 
@@ -31,5 +31,5 @@ public class UserUpdateRequestDto {
     @Past
     LocalDate birthDate;
 
-    List<AccountDto> listAccountDto = new ArrayList<>();
+    List<AccountResponseDto> listAccountDto = new ArrayList<>();
 }

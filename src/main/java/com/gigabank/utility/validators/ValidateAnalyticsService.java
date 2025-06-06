@@ -2,7 +2,7 @@ package com.gigabank.utility.validators;
 
 import com.gigabank.constants.TransactionCategories;
 import com.gigabank.constants.TransactionType;
-import com.gigabank.models.dto.TransactionDto;
+import com.gigabank.models.dto.response.TransactionResponseDto;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,7 +22,7 @@ public class ValidateAnalyticsService {
      * @param transaction проверяемая транзакция
      * @return true если транзакция соответствует всем критериям, false в противном случае
      */
-    public boolean isValidPaymentTransaction(TransactionDto transaction) {
+    public boolean isValidPaymentTransaction(TransactionResponseDto transaction) {
         return isTransactionNotNull(transaction)
                 && isPaymentType(transaction)
                 && hasPositiveAmount(transaction)
@@ -40,7 +40,7 @@ public class ValidateAnalyticsService {
      * @param transaction проверяемая транзакция
      * @return true если транзакция соответствует всем критериям, false в противном случае
      */
-    public boolean isValidDepositTransaction(TransactionDto transaction) {
+    public boolean isValidDepositTransaction(TransactionResponseDto transaction) {
         return isTransactionNotNull(transaction)
                 && isDepositType(transaction)
                 && hasPositiveAmount(transaction)
@@ -53,7 +53,7 @@ public class ValidateAnalyticsService {
      * @param transaction проверяемая транзакция
      * @return true если транзакция не null, false в противном случае
      */
-    public boolean isTransactionNotNull(TransactionDto transaction) {
+    public boolean isTransactionNotNull(TransactionResponseDto transaction) {
         return !Objects.isNull(transaction);
     }
 
@@ -63,7 +63,7 @@ public class ValidateAnalyticsService {
      * @param transaction проверяемая транзакция
      * @return true если тип транзакции PAYMENT, false в противном случае
      */
-    public boolean isPaymentType(TransactionDto transaction) {
+    public boolean isPaymentType(TransactionResponseDto transaction) {
         return transaction.getType().equals(TransactionType.PAYMENT);
     }
 
@@ -73,7 +73,7 @@ public class ValidateAnalyticsService {
      * @param transaction проверяемая транзакция
      * @return true если тип транзакции DEPOSIT, false в противном случае
      */
-    public boolean isDepositType(TransactionDto transaction) {
+    public boolean isDepositType(TransactionResponseDto transaction) {
         return transaction.getType().equals(TransactionType.DEPOSIT);
     }
 
@@ -103,7 +103,7 @@ public class ValidateAnalyticsService {
      * @return true если сумма валидна, false в противном случае
      * @throws NullPointerException если транзакция null
      */
-    public boolean hasPositiveAmount(TransactionDto transaction) {
+    public boolean hasPositiveAmount(TransactionResponseDto transaction) {
         BigDecimal amount = transaction.getAmount();
         return !Objects.isNull(amount)
                 && (amount.compareTo(BigDecimal.ZERO) > 0);
@@ -116,7 +116,7 @@ public class ValidateAnalyticsService {
      * @return true если дата транзакции не null, false в противном случае
      * @throws NullPointerException если транзакция null
      */
-    public boolean hasValidDate(TransactionDto transaction) {
+    public boolean hasValidDate(TransactionResponseDto transaction) {
         return !Objects.isNull(transaction.getCreatedDate());
     }
 }

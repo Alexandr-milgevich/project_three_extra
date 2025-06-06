@@ -1,6 +1,6 @@
 package com.gigabank.service.notification;
 
-import com.gigabank.models.dto.UserDto;
+import com.gigabank.models.dto.response.UserResponseDto;
 import com.gigabank.service.notification.adapter.EmailNotificationServiceAdapter;
 import com.gigabank.service.notification.adapter.SmsNotificationServiceAdapter;
 import lombok.RequiredArgsConstructor;
@@ -27,35 +27,35 @@ public class NotificationAdapter {
      * Использует адаптеры для отправки как SMS-сообщений, так и email-сообщений.
      * </p>
      *
-     * @param userDto      объект {@link UserDto}, содержащий контактные данные пользователя (номер телефона и email)
-     * @param smsMessage   текст SMS-сообщения
-     * @param emailSubject тема email-уведомления
-     * @param emailBody    содержимое email-уведомления
+     * @param userResponseDto объект {@link UserResponseDto}, содержащий контактные данные пользователя (номер телефона и email)
+     * @param smsMessage      текст SMS-сообщения
+     * @param emailSubject    тема email-уведомления
+     * @param emailBody       содержимое email-уведомления
      */
-    public void sendAllNotificationToUser(UserDto userDto, String smsMessage, String emailSubject, String emailBody) {
-        smsNotificationServiceAdapter.sendSms(userDto.getPhoneNumber(), smsMessage);
-        emailNotificationServiceAdapter.sendEmail(userDto.getEmail(), emailSubject, emailBody);
+    public void sendAllNotificationToUser(UserResponseDto userResponseDto, String smsMessage, String emailSubject, String emailBody) {
+        smsNotificationServiceAdapter.sendSms(userResponseDto.getPhoneNumber(), smsMessage);
+        emailNotificationServiceAdapter.sendEmail(userResponseDto.getEmail(), emailSubject, emailBody);
     }
 
     /**
      * Отправляет только SMS-уведомление пользователю.
      *
-     * @param userDto    объект {@link UserDto}, содержащий контактные данные пользователя
-     * @param smsMessage текст SMS-сообщения
+     * @param userResponseDto объект {@link UserResponseDto}, содержащий контактные данные пользователя
+     * @param smsMessage      текст SMS-сообщения
      */
-    public void sendSmsNotificationToUser(UserDto userDto, String smsMessage) {
-        smsNotificationServiceAdapter.sendSms(userDto.getPhoneNumber(), smsMessage);
+    public void sendSmsNotificationToUser(UserResponseDto userResponseDto, String smsMessage) {
+        smsNotificationServiceAdapter.sendSms(userResponseDto.getPhoneNumber(), smsMessage);
 
     }
 
     /**
      * Отправляет только email-уведомление пользователю.
      *
-     * @param userDto      объект {@link UserDto}, содержащий контактные данные пользователя
-     * @param emailSubject тема email-уведомления
-     * @param emailBody    содержимое email-уведомления
+     * @param userResponseDto объект {@link UserResponseDto}, содержащий контактные данные пользователя
+     * @param emailSubject    тема email-уведомления
+     * @param emailBody       содержимое email-уведомления
      */
-    public void sendEmailNotificationToUser(UserDto userDto, String emailSubject, String emailBody) {
-        emailNotificationServiceAdapter.sendEmail(userDto.getEmail(), emailSubject, emailBody);
+    public void sendEmailNotificationToUser(UserResponseDto userResponseDto, String emailSubject, String emailBody) {
+        emailNotificationServiceAdapter.sendEmail(userResponseDto.getEmail(), emailSubject, emailBody);
     }
 }
