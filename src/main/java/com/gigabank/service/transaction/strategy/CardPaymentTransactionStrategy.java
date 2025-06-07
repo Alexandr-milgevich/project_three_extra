@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-
 /**
  * <p>Стратегия обработки транзакций платежей по карте.</p>
  *

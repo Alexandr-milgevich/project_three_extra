@@ -1,7 +1,7 @@
 package com.gigabank.service.bank.manager.strategy;
 
-import com.gigabank.models.dto.request.user.UserAnotherRequestDto;
 import com.gigabank.models.dto.request.account.AccountRequestDto;
+import com.gigabank.models.dto.request.user.UserAnotherRequestDto;
 
 /**
  * Интерфейс стратегии обработки платежей.

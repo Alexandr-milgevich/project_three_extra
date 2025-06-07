@@ -2,12 +2,12 @@
 
 1. Создайте REST-контроллер `BankAccountController` и `TransactionController`.
 2. Реализуйте следующие эндпоинты:
-    - `POST /accounts` — создать новый аккаунт
-    - `GET /accounts/{id}` — получить данные аккаунта
-    - `POST /accounts/{id}/deposit` — пополнить баланс
-    - `POST /accounts/{id}/withdraw` — снять средства
+    - `POST /bankAccounts` — создать новый аккаунт
+    - `GET /bankAccounts/{id}` — получить данные аккаунта
+    - `POST /bankAccounts/{id}/deposit` — пополнить баланс
+    - `POST /bankAccounts/{id}/withdraw` — снять средства
     - `POST /transactions/transfer` — перевести между счетами
-    - `GET /accounts/{id}/transactions` — получить историю операций
+    - `GET /bankAccounts/{id}/transactions` — получить историю операций
 3. Используйте:
     - `@RequestMapping`, `@GetMapping`, `@PostMapping`
     - `@RequestParam`, `@RequestBody`, `@PathVariable`

@@ -5,6 +5,9 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+/**
+ * Сущность возврата транзакции.
+ */
 @Entity
 @Getter
 @Setter
@@ -13,8 +16,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Table(name = "refund")
 public class Refund {
-    //todo СДЕЛАЙ описание класса!
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "refund_id")

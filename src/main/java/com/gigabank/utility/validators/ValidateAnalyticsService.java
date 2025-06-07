@@ -9,6 +9,10 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Сервис для валидации данных транзакции перед сохранением в базу данных.
+ * При обнаружении ошибок выбрасывает соответствующие исключения.
+ */
 @Service
 public class ValidateAnalyticsService {
     /**
@@ -101,7 +105,6 @@ public class ValidateAnalyticsService {
      *
      * @param transaction проверяемая транзакция
      * @return true если сумма валидна, false в противном случае
-     * @throws NullPointerException если транзакция null
      */
     public boolean hasPositiveAmount(TransactionResponseDto transaction) {
         BigDecimal amount = transaction.getAmount();
@@ -114,7 +117,6 @@ public class ValidateAnalyticsService {
      *
      * @param transaction проверяемая транзакция
      * @return true если дата транзакции не null, false в противном случае
-     * @throws NullPointerException если транзакция null
      */
     public boolean hasValidDate(TransactionResponseDto transaction) {
         return !Objects.isNull(transaction.getCreatedDate());

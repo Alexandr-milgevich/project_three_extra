@@ -3,7 +3,7 @@ package com.gigabank.service.bank.manager;
 import com.gigabank.mappers.AccountMapper;
 import com.gigabank.models.dto.request.user.UserAnotherRequestDto;
 import com.gigabank.models.dto.response.AccountResponseDto;
-import com.gigabank.service.AccountService;
+import com.gigabank.service.account.AccountService;
 import com.gigabank.service.bank.manager.factory.PaymentManagerStrategyFactory;
 import com.gigabank.service.bank.manager.strategy.PaymentManagerStrategy;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,8 @@ public class BankAccountManager {
                 System.out.println("No account found for ID: " + request.getAccountId());
                 continue;
             }
-            PaymentManagerStrategy paymentManagerStrategy = paymentManagerStrategyFactory.getPaymentStrategy(request.getPaymentType());
+            PaymentManagerStrategy paymentManagerStrategy = paymentManagerStrategyFactory
+                    .getPaymentStrategy(request.getPaymentType());
             paymentManagerStrategy.process(accountMapper.toRequestDto(accountDto), request);
         }
     }

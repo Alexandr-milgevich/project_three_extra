@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 import java.math.BigDecimal;
 
 /**
- * Возврат по транзакции
+ * Возврат транзакции
  */
 @Data
 @Builder

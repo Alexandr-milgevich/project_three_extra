@@ -35,11 +35,9 @@ public interface UserMapper {
      * Обновляет сущность пользователя данными из DTO.
      * Игнорирует поля, которые равны null в DTO.
      *
-     * @param dto Данные для обновления
+     * @param dto    Данные для обновления
      * @param entity Сущность пользователя, которую нужно обновить
      */
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateFromDto(UpdateUserRequestDto dto, @MappingTarget User entity);
 }
-
-

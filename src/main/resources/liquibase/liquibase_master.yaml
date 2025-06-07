@@ -2,7 +2,7 @@ databaseChangeLog:
   - include:
       file: liquibase/sql/user.sql
   - include:
-      file: liquibase/sql/account.sql
+      file: liquibase/sql/bank_account.sql
   - include:
       file: liquibase/sql/transaction.sql
   - include:

@@ -41,7 +41,6 @@ public class PaymentServiceStrategyFactory {
             case CARD -> cardPaymentStrategy;
             case BANK -> bankPaymentStrategy;
             case WALLET -> walletPaymentStrategy;
-            default -> throw new IllegalArgumentException("Unsupported payment type: " + paymentType);
         };
     }
 }

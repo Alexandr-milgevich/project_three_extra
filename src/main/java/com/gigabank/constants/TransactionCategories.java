@@ -2,6 +2,10 @@ package com.gigabank.constants;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * Перечисление, определяющее категории платежей в системе.
  * <p>
@@ -17,5 +21,11 @@ import lombok.Getter;
  */
 @Getter
 public enum TransactionCategories {
-    HEALTH, BEAUTY, EDUCATION, OTHER
+    HEALTH, BEAUTY, EDUCATION, OTHER;
+
+    public static final Set<String> VALID_TRANSACTION_CATEGORIES =
+            Arrays.stream(TransactionCategories.values())
+                    .map(Enum::name)
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toSet());
 }

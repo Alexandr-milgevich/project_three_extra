@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS public.transaction
 (
-    transaction_id         VARCHAR(50) NOT NULL,
+    transaction_id         BIGINT      NOT NULL UNIQUE,
     amount                 INTEGER     NOT NULL,
     type                   VARCHAR(36) NOT NULL,
     category               VARCHAR(36) NOT NULL,
@@ -12,8 +12,11 @@ CREATE TABLE IF NOT EXISTS public.transaction
     digital_wallet_id      VARCHAR(100),
     merchant_category_code VARCHAR(100),
 
-    account_id             VARCHAR(36) NOT NULL,
+    status                 VARCHAR(7)  NOT NULL,
+    account_id             BIGINT      NOT NULL,
     CONSTRAINT transaction_pkey PRIMARY KEY (transaction_id),
     CONSTRAINT transaction_fk_account FOREIGN KEY (account_id)
-        REFERENCES account (account_id) ON DELETE CASCADE
+        REFERENCES bankAccount (account_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
 );

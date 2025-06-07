@@ -2,8 +2,8 @@ package com.gigabank.service.bank.service;
 
 import com.gigabank.constants.PaymentType;
 import com.gigabank.constants.TransactionType;
-import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.dto.request.account.AccountRequestDto;
+import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.dto.response.UserResponseDto;
 import com.gigabank.service.bank.service.factory.PaymentServiceStrategyFactory;
 import com.gigabank.service.bank.service.strategy.PaymentServiceStrategy;
@@ -118,9 +118,7 @@ public class BankAccountService {
     public static void createTestAccount() {
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setId(0L);
-        userResponseDto.setFirstName("John");
-        userResponseDto.setMiddleName("K");
-        userResponseDto.setLastName("Doe");
+        userResponseDto.setUsername("John");
         userResponseDto.setBirthDate(LocalDateTime.now().minusYears(25).toLocalDate());
         userResponseDto.setEmail("john.doe@example.com");
         userResponseDto.setPhoneNumber("+1234567890");

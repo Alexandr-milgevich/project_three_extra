@@ -1,7 +1,10 @@
 package com.gigabank.models.dto.request.user;
 
 import com.gigabank.constants.PaymentType;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;

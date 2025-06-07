@@ -2,6 +2,8 @@ package com.gigabank.constants;
 
 import lombok.Getter;
 
+import java.util.EnumSet;
+
 /**
  * Перечисление типов финансовых транзакций.
  * <p>
@@ -16,5 +18,8 @@ import lombok.Getter;
  */
 @Getter
 public enum TransactionType {
-    DEPOSIT, PAYMENT
+    DEPOSIT, PAYMENT;
+
+    public static final EnumSet<TransactionType> SUPPORTED_TYPES =
+            EnumSet.of(TransactionType.DEPOSIT, TransactionType.PAYMENT);
 }

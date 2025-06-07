@@ -2,12 +2,17 @@ package com.gigabank.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.gigabank.constants.TransactionType;
+import com.gigabank.constants.status.TransactionStatus;
+import com.gigabank.utility.converters.TransactionStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Сущность Транзакции.
+ */
 @Entity
 @Getter
 @Setter
@@ -16,8 +21,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "transaction")
 public class Transaction {
-    //todo СДЕЛАЙ описание класса!
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transaction_id")
@@ -50,8 +53,12 @@ public class Transaction {
     @Column(name = "merchant_category_code")
     private String merchantCategoryCode;
 
+    @Column(name = "status", nullable = false)
+    @Convert(converter = TransactionStatusConverter.class)
+    private TransactionStatus status = TransactionStatus.ACTIVE;
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "account_id", referencedColumnName = "account_id")
-    Account account;
+    BankAccount bankAccount;
 }

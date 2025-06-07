@@ -18,9 +18,7 @@ import java.util.List;
 public class UserResponseDto {
     Long id;
     String email;
-    String lastName;
-    String firstName;
-    String middleName;
+    String username;
     String phoneNumber;
     LocalDate birthDate;
     List<AccountResponseDto> listAccountDto;

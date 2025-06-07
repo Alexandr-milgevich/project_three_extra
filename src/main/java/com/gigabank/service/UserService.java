@@ -1,15 +1,15 @@
 package com.gigabank.service;
 
-import com.gigabank.exceptions.User.UserAlreadyExistsException;
+import com.gigabank.constants.status.UserStatus;
 import com.gigabank.exceptions.User.UserNotFoundException;
-import com.gigabank.exceptions.User.UserValidationException;
 import com.gigabank.mappers.UserMapper;
 import com.gigabank.models.dto.request.user.CreateUserRequestDto;
 import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
-import com.gigabank.models.entity.Account;
+import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.User;
 import com.gigabank.repository.UserRepository;
+import com.gigabank.service.account.AccountService;
 import com.gigabank.utility.validators.ValidateUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
-
-import static com.gigabank.utility.Utility.isFilled;
 
 /**
  * Сервис для работы с пользователями банка.
@@ -30,30 +27,28 @@ import static com.gigabank.utility.Utility.isFilled;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserMapper userMapper;
+    private final AuditService auditService;
     private final UserRepository userRepository;
-    private final ValidateUserService validator;
     private final AccountService accountService;
+    private final ValidateUserService validator;
 
     /**
      * Создает нового пользователя в системе.
      *
      * @param createUserRequestDto DTO с данными для создания пользователя
      * @return DTO созданного пользователя
-     * @throws UserAlreadyExistsException если пользователь с таким email или телефоном уже существует
-     * @throws UserValidationException    если данные пользователя не прошли валидацию
      */
     @Transactional
     public UserResponseDto createUser(CreateUserRequestDto createUserRequestDto) {
+        log.info("Начало создания пользователя.");
+
         User user = userMapper.toEntity(createUserRequestDto);
-        validator.validateDataBeforeSave(user);
         validator.checkEmailAndPhoneUniqueness(user.getEmail(), user.getPhoneNumber());
+        BankAccount bankAccount = accountService.createInitialAccount(user);
+        user.setListBankAccounts(List.of(bankAccount));
 
-        Account account = accountService.createInitialAccount(user);
-        user.setListAccounts(List.of(account));
-
-        userRepository.save(user);
+        save(user);
 
         log.info("Пользователь с id {} был создан.", user.getId());
         return userMapper.toDto(user);
@@ -64,38 +59,16 @@ public class UserService {
      *
      * @param id идентификатор пользователя
      * @return DTO пользователя
-     * @throws UserNotFoundException если пользователь не найден
      */
     public UserResponseDto getUserById(Long id) {
-        return userRepository.findById(id)
+        log.info("Попытка получить пользователя с ID: {}", id);
+
+        UserResponseDto dto = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
-    }
 
-    /**
-     * Получает пользователя по email.
-     *
-     * @param email email пользователя
-     * @return DTO пользователя
-     * @throws UserNotFoundException если пользователь не найден
-     */
-    public UserResponseDto getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по email: " + email));
-    }
-
-    /**
-     * Получает пользователя по номеру телефона.
-     *
-     * @param phoneNumber номер телефона пользователя
-     * @return DTO пользователя
-     * @throws UserNotFoundException если пользователь не найден
-     */
-    public UserResponseDto getUserByPhone(String phoneNumber) {
-        return userRepository.findByPhoneNumber(phoneNumber)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по номеру телефона: " + phoneNumber));
+        log.info("Получен пользователь с ID: {}", id);
+        return dto;
     }
 
     /**
@@ -104,98 +77,56 @@ public class UserService {
      * @param id        идентификатор пользователя
      * @param updateDto DTO с обновленными данными
      * @return DTO обновленного пользователя
-     * @throws UserNotFoundException   если пользователь не найден
-     * @throws UserValidationException если данные не прошли валидацию
      */
     @Transactional
     public UserResponseDto updateUser(Long id, UpdateUserRequestDto updateDto) {
-        User user = userRepository.findById(id)
+        log.info("Обновление пользователя с ID: {}", id);
+
+        User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
-
         userMapper.updateFromDto(updateDto, user);
-        validator.validateDataBeforeSave(user);
 
-        User updatedUser = userRepository.save(user);
-        return userMapper.toDto(updatedUser);
+        save(user);
+
+        log.info("Пользователь с ID {} успешно обновлён", id);
+        return userMapper.toDto(user);
     }
 
     /**
      * Сохраняет пользователя в базу данных.
      *
      * @param user сущность пользователя
-     * @throws UserValidationException если пользователь не валиден или отсутствуют счета
      */
-    @Transactional
     public void save(User user) {
-        if (Objects.isNull(user)) {
-            throw new UserValidationException("Пользователя не существует!");
-        }
+        log.info("Начало сохранения пользователя.");
+
         validator.validateDataBeforeSave(user);
-        if (Objects.isNull(user.getListAccounts()) || user.getListAccounts().isEmpty()) {
-            throw new UserValidationException("У пользователя отсутствуют счета");
-        }
-
-        log.info("Пользователь с UUID {} был сохранен в БД.", user.getId());
         userRepository.save(user);
+
+        log.info("Пользователь успешно сохранён с Id: {}.", user.getId());
     }
 
     /**
-     * Удаляет пользователя по идентификатору.
+     * Изменяет статус пользователя по идентификатору.
      *
-     * @param id идентификатор пользователя
-     * @throws UserValidationException если id равен null
-     * @throws UserNotFoundException   если пользователь не найден
+     * @param id        идентификатор пользователя
+     * @param newStatus новый статус пользователя
      */
     @Transactional
-    public void deleteUserById(Long id) {
-        if (id == null) {
-            log.error("Попытка удаления пользователя с пустым id");
-            throw new UserValidationException("Id не может быть пустым");
-        }
-        if (userRepository.deleteById(id) == 0) {
-            log.warn("Пользователь с id {} не найден", id);
-            throw new UserNotFoundException("Пользователь не найден с id: " + id);
-        }
-        log.info("Пользователь с идентификатором {} удален", id);
-    }
+    public void changeUserStatus(Long id, UserStatus newStatus, String reason) {
+        log.info("Попытка изменения статуса пользователя на {} с ID: {}", newStatus, id);
 
-    /**
-     * Удаляет пользователя по email.
-     *
-     * @param email email пользователя
-     * @throws UserValidationException если email пустой
-     * @throws UserNotFoundException   если пользователь не найден
-     */
-    @Transactional
-    public void deleteUserByEmail(String email) {
-        if (!isFilled(email)) {
-            log.error("Попытка удаления пользователя с пустым email");
-            throw new UserValidationException("Email не может быть пустым");
-        }
-        if (userRepository.deleteByEmail(email) == 0) {
-            log.warn("Пользователь с email {} не найден", email);
-            throw new UserNotFoundException("Пользователь не найден с email: " + email);
-        }
-        log.info("Пользователь с email {} удален", email);
-    }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
 
-    /**
-     * Удаляет пользователя по номеру телефона.
-     *
-     * @param phoneNumber номер телефона пользователя
-     * @throws UserValidationException если номер телефона пустой
-     * @throws UserNotFoundException   если пользователь не найден
-     */
-    @Transactional
-    public void deleteUserByPhoneNumber(String phoneNumber) {
-        if (!isFilled(phoneNumber)) {
-            log.error("Попытка удаления пользователя с пустым номером телефона");
-            throw new UserValidationException("Номер телефона не может быть пустым");
-        }
-        if (userRepository.deleteByPhoneNumber(phoneNumber) == 0) {
-            log.warn("Пользователь с номером телефона {} не найден", phoneNumber);
-            throw new UserNotFoundException("Пользователь не найден с номером телефона: " + phoneNumber);
-        }
-        log.info("Пользователь с номером телефона {} удален", phoneNumber);
+        UserStatus oldStatus = user.getStatus();
+        validator.checkUserStatus(newStatus, oldStatus);
+        user.setStatus(newStatus);
+        save(user);
+
+        auditService.logStatusChange(id, oldStatus, newStatus, reason);
+        log.info("Статус пользователя изменен c {} на {} с ID: {}", oldStatus, newStatus, id);
+
+        accountService.updateAccountsStatus(user.getListBankAccounts(), newStatus);
     }
 }

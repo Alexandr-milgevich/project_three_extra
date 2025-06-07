@@ -2,11 +2,9 @@ package com.gigabank.models.dto.request.user;
 
 import com.gigabank.models.dto.response.AccountResponseDto;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Past;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +20,7 @@ import java.util.List;
 public class UpdateUserRequestDto {
     @Email
     String email;
-
-    String lastName;
-    String firstName;
-    String middleName;
+    String username;
     String phoneNumber;
-
-    @Past
-    LocalDate birthDate;
-
     List<AccountResponseDto> listAccountDto = new ArrayList<>();
 }

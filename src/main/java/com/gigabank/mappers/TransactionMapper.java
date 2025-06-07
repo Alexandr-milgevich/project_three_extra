@@ -1,16 +1,46 @@
 package com.gigabank.mappers;
 
+import com.gigabank.models.dto.request.transaction.CreateTransactionRequestDto;
+import com.gigabank.models.dto.request.transaction.TransactionRequestDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.entity.Transaction;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
+/**
+ * Класс для преобразования между сущностями Account и DTO для транзакций.
+ * Использует MapStruct для автоматического преобразования объектов.
+ */
 @Mapper(componentModel = "spring")
 public interface TransactionMapper {
-    //todo СДЕЛАЙ описание класса!
+    /**
+     * Преобразует DTO создания транзакции в сущность
+     *
+     * @param dto DTO создания счета
+     * @return сущность Account
+     */
+    Transaction toEntityFromCreateRequestDto(CreateTransactionRequestDto dto);
 
-    @Mapping(target = "id", ignore = true)
-    TransactionResponseDto toDto(Transaction transaction);
+    /**
+     * Преобразует DTO создания транзакции в сущность
+     *
+     * @param dto DTO создания счета
+     * @return сущность Account
+     */
+    Transaction toEntityFromResponseDto(TransactionResponseDto dto);
 
-    Transaction toEntity(TransactionResponseDto transactionResponseDto);
+    /**
+     * Преобразует сущность в DTO для ответа
+     *
+     * @param transaction сущность Transaction
+     * @return DTO ответа
+     */
+    TransactionResponseDto toResponseDto(Transaction transaction);
+
+    /**
+     * Преобразует сущность в DTO запроса
+     *
+     * @param dto DTO ответа
+     * @return DTO запроса
+     */
+    TransactionRequestDto toRequestDto(TransactionResponseDto dto);
 }

@@ -1,13 +1,12 @@
 package com.gigabank.service.transaction.strategy;
 
-import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.dto.request.account.AccountRequestDto;
+import com.gigabank.models.dto.response.TransactionResponseDto;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Map;
-
 
 /**
  * <p>Стратегия обработки транзакций банковских переводов.</p>

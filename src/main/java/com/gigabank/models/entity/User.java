@@ -1,13 +1,18 @@
 package com.gigabank.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.gigabank.constants.status.UserStatus;
+import com.gigabank.utility.converters.UserStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Сущность пользователя.
+ * Хранит информацию о владельце и связанных с ним транзакциях.
+ */
 @Entity
 @Getter
 @Setter
@@ -16,32 +21,25 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "user")
 public class User {
-    //todo СДЕЛАЙ описание класса!
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
+    @Column(name = "username", nullable = false)
+    private String username;
+
     @Column(name = "email", nullable = false, unique = true)
     private String email;
-
-    @Column(name = "lastName", nullable = false)
-    private String lastName;
-
-    @Column(name = "firstName", nullable = false)
-    private String firstName;
-
-    @Column(name = "middleName")
-    private String middleName;
 
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "birthDate", nullable = false)
-    private LocalDate birthDate;
+    @Column(name = "status", nullable = false)
+    @Convert(converter = UserStatusConverter.class)
+    private UserStatus status = UserStatus.ACTIVE;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Account> listAccounts = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    List<BankAccount> listBankAccounts = new ArrayList<>();
 }

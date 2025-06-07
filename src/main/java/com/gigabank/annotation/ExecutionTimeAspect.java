@@ -1,11 +1,10 @@
 package com.gigabank.annotation;
 
-
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,8 +13,8 @@ import org.springframework.stereotype.Service;
  *
  * @see LogExecutionTime
  */
-@Aspect
 @Slf4j
+@Aspect
 @Service
 public class ExecutionTimeAspect {
     /**
@@ -23,7 +22,6 @@ public class ExecutionTimeAspect {
      *
      * @param joinPoint точка соединения AOP
      * @return результат оригинального метода
-     * @throws Throwable в случае ошибок выполнения
      */
     @Around("@annotation(com.gigabank.annotation.LogExecutionTime)")
     public Object logExecutionTime(@NotNull ProceedingJoinPoint joinPoint) throws Throwable {
