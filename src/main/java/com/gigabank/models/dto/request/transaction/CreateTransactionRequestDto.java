@@ -18,9 +18,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateTransactionRequestDto {
-    @NotNull
-    @PositiveOrZero
-    Long id;
 
     @NotNull(message = "Сумма обязательна")
     @PositiveOrZero(message = "Сумма транзакции не может быть отрицательной")

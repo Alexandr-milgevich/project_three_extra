@@ -5,6 +5,7 @@ import com.gigabank.constants.status.UserStatus;
 import com.gigabank.utility.converters.UserStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.Builder.Default;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +33,16 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
+    @Default
     @Column(name = "status", nullable = false)
     @Convert(converter = UserStatusConverter.class)
     private UserStatus status = UserStatus.ACTIVE;
 
+    @Default
     @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    List<BankAccount> listBankAccounts = new ArrayList<>();
+    private List<BankAccount> listBankAccounts = new ArrayList<>();
 }

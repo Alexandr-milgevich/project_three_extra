@@ -1,13 +1,11 @@
 package com.gigabank.models.dto.request.user;
 
+import com.gigabank.constants.status.UserStatus;
 import com.gigabank.models.dto.response.AccountResponseDto;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRequestDto {
+    @NotNull
+    @PositiveOrZero
+    Long id;
+
     @NotBlank(message = "Не указана эл. почта")
     @Email(message = "email должен быть корректным")
     String email;
@@ -30,6 +32,11 @@ public class UserRequestDto {
     @NotBlank(message = "Не указан номер телефона")
     String phoneNumber;
 
-    @NotNull(message = "У пользователя должен быть счет")
-    List<AccountResponseDto> listAccountDto = new ArrayList<>();
+    @NotNull
+    @NotEmpty(message = "Статус не может быть пустым")
+    UserStatus status;
+
+    @NotNull
+    @NotEmpty(message = "У пользователя должны быть счета")
+    List<AccountResponseDto> listAccountDto;
 }

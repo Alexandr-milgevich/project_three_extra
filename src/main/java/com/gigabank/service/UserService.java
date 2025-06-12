@@ -60,15 +60,31 @@ public class UserService {
      * @param id идентификатор пользователя
      * @return DTO пользователя
      */
-    public UserResponseDto getUserById(Long id) {
-        log.info("Попытка получить пользователя с ID: {}", id);
+    public UserResponseDto getUserByIdFromController(Long id) {
+        log.info("Попытка получить пользователя по ID: {}", id);
 
         UserResponseDto dto = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
 
-        log.info("Получен пользователь с ID: {}", id);
+        log.info("Получен пользователь по ID: {}", id);
         return dto;
+    }
+
+    /**
+     * Получает пользователя по идентификатору.
+     *
+     * @param id идентификатор пользователя
+     * @return DTO пользователя
+     */
+    public User getUserById(Long id) {
+        log.info("Попытка получить пользователя с ID: {}", id);
+
+        User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
+
+        log.info("Получен пользователь с ID: {}", id);
+        return user;
     }
 
     /**
@@ -82,10 +98,8 @@ public class UserService {
     public UserResponseDto updateUser(Long id, UpdateUserRequestDto updateDto) {
         log.info("Обновление пользователя с ID: {}", id);
 
-        User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
+        User user = getUserById(id);
         userMapper.updateFromDto(updateDto, user);
-
         save(user);
 
         log.info("Пользователь с ID {} успешно обновлён", id);
@@ -116,9 +130,7 @@ public class UserService {
     public void changeUserStatus(Long id, UserStatus newStatus, String reason) {
         log.info("Попытка изменения статуса пользователя на {} с ID: {}", newStatus, id);
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
-
+        User user = getUserById(id);
         UserStatus oldStatus = user.getStatus();
         validator.checkUserStatus(newStatus, oldStatus);
         user.setStatus(newStatus);

@@ -40,7 +40,7 @@ public class BankAccountManager {
      */
     public void doWork(List<UserAnotherRequestDto> userAnotherRequestDtoList) {
         for (UserAnotherRequestDto request : userAnotherRequestDtoList) {
-            AccountResponseDto accountDto = accountService.getAccountById(request.getAccountId());
+            AccountResponseDto accountDto = accountService.getAccountByIdFromController(request.getAccountId());
             if (accountDto == null) {
                 System.out.println("No account found for ID: " + request.getAccountId());
                 continue;

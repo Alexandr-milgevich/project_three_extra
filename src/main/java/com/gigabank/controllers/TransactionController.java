@@ -1,7 +1,8 @@
 package com.gigabank.controllers;
 
-
+import com.gigabank.models.dto.request.account.TransferRequestDto;
 import com.gigabank.models.dto.request.transaction.ChangeStatusTransactionRequest;
+import com.gigabank.models.dto.request.transaction.CreateTransactionRequestDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.service.transaction.TransactionService;
 import jakarta.validation.Valid;
@@ -14,10 +15,22 @@ import org.springframework.web.bind.annotation.*;
  * Предоставляет API для создания, управления и получения информации о транзакциях.
  */
 @RestController
-@RequestMapping("/transactions")
+@RequestMapping("/api/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
+
+    /**
+     * Создает новую транзакцию для указанного счета.
+     *
+     * @param request DTO с данными для создания транзакции
+     * @return DTO созданной транзакции
+     */
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public TransactionResponseDto createAccount(@Valid @RequestBody CreateTransactionRequestDto request) {
+        return transactionService.createTransactionFromController(request);
+    }
 
     /**
      * Получает полную информацию о транзакции по его идентификатору.
@@ -28,7 +41,7 @@ public class TransactionController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public TransactionResponseDto getTransactionById(@PathVariable Long id) {
-        return transactionService.getTransactionById(id);
+        return transactionService.getTransactionByIdFromController(id);
     }
 
     /**
@@ -43,5 +56,20 @@ public class TransactionController {
     public void changeTransactionStatus(@PathVariable Long id,
                                         @RequestBody @Valid ChangeStatusTransactionRequest request) {
         transactionService.changeTransactionStatus(id, request.getStatus(), request.getReason());
+    }
+
+    /**
+     * Выполняет перевод средств между счетами
+     *
+     * @param request DTO с данными для перевода (счет отправителя, счет получателя, сумма)
+     */
+    @PostMapping("/transfer")
+    @ResponseStatus(HttpStatus.OK)
+    public void transferBetweenAccounts(
+            @RequestBody @Valid TransferRequestDto request) {
+        transactionService.transferBetweenAccounts(
+                request.getFromAccountId(),
+                request.getToAccountId(),
+                request.getAmount());
     }
 }

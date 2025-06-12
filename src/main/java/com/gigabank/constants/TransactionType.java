@@ -18,8 +18,9 @@ import java.util.EnumSet;
  */
 @Getter
 public enum TransactionType {
-    DEPOSIT, PAYMENT;
+    DEPOSIT, PAYMENT, WITHDRAWAL, TRANSFER;
 
     public static final EnumSet<TransactionType> SUPPORTED_TYPES =
-            EnumSet.of(TransactionType.DEPOSIT, TransactionType.PAYMENT);
+            EnumSet.of(TransactionType.DEPOSIT, TransactionType.PAYMENT,
+                    TransactionType.WITHDRAWAL, TransactionType.TRANSFER);
 }

@@ -21,12 +21,13 @@ public class Refund {
     @Column(name = "refund_id")
     private Long id;
 
-    @Column(name = "amount")
-    BigDecimal amount;
+    @Column(name = "amount", nullable = false)
+    private BigDecimal amount;
 
     @Column(name = "description")
-    String description;
+    private String description;
 
-    @Column(name = "transaction_id")
-    String transactionUuid;
+    @OneToOne
+    @JoinColumn(name = "transaction_uuid", referencedColumnName = "transaction_uuid", insertable = false, updatable = false)
+    private Transaction transaction;
 }

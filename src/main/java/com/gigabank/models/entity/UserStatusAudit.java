@@ -21,22 +21,28 @@ import java.time.LocalDateTime;
 public class UserStatusAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "audit_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "old_status", nullable = false)
     private UserStatus oldStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "new_status", nullable = false)
     private UserStatus newStatus;
 
-    private String reason; // Причина изменения
-
-    @Column(nullable = false, updatable = false)
+    @Column(name = "changed_at", nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime changedAt;
+
+    @Column(name = "reason")
+    private String reason; // Причина изменения
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", insertable = false, updatable = false)
+    private User user;
 }

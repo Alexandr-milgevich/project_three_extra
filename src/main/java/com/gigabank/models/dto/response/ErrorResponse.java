@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ErrorResponse {
-    int status;                 //Статус ошибки.
+    Integer status;             //Статус ошибки.
     String error;               //Тип ошибки.
     String message;             //Сообщение об ошибке.
     LocalDateTime timestamp;    //Время, когда произошла ошибка.

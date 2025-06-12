@@ -6,7 +6,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,5 +20,5 @@ import java.util.List;
 public class CreateAccountRequestDto {
     BigDecimal balance;
     UserResponseDto userResponseDto;
-    List<TransactionResponseDto> listTransactionResponseDto = new ArrayList<>();
+    List<TransactionResponseDto> listTransactionResponseDto;
 }

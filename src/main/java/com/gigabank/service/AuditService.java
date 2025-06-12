@@ -29,7 +29,7 @@ public class AuditService {
     private UserStatusAudit createUserStatusAudit(Long userId, UserStatus oldStatus,
                                                   UserStatus newStatus, String reason) {
         return UserStatusAudit.builder()
-                .userId(userId)
+                .id(userId)
                 .oldStatus(oldStatus)
                 .newStatus(newStatus)
                 .reason(reason)

@@ -7,3 +7,5 @@ databaseChangeLog:
       file: liquibase/sql/transaction.sql
   - include:
       file: liquibase/sql/refund.sql
+  - include:
+      file: liquibase/sql/user_status_audit.sql

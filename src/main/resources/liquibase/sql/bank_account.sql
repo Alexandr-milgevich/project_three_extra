@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS public.bank_account
 (
-    number  BIGINT     NOT NULL UNIQUE,
-    balance INTEGER    NOT NULL,
-    user_id BIGINT     NOT NULL,
-
-    status  VARCHAR(7) NOT NULL,
-    CONSTRAINT bank_account_pkey PRIMARY KEY (number),
+    account_id     BIGSERIAL      NOT NULL UNIQUE,
+    number_account VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid(),
+    balance        DECIMAL(19, 2) NOT NULL DEFAULT 0,
+    user_id        BIGINT         NOT NULL,
+    status         VARCHAR(7)     NOT NULL DEFAULT 'ACTIVE',
+    version        BIGINT         NOT NULL DEFAULT 0,
     CONSTRAINT bank_account_fk_user FOREIGN KEY (user_id)
         REFERENCES "user" (user_id)
         ON UPDATE CASCADE

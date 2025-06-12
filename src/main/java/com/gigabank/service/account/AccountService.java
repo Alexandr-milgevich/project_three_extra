@@ -1,8 +1,9 @@
 package com.gigabank.service.account;
 
+import com.gigabank.constants.TransactionCategories;
+import com.gigabank.constants.TransactionType;
 import com.gigabank.constants.status.AccountStatus;
 import com.gigabank.constants.status.UserStatus;
-import com.gigabank.exceptions.User.UserNotFoundException;
 import com.gigabank.exceptions.account.AccountNotFoundException;
 import com.gigabank.exceptions.account.AccountValidationException;
 import com.gigabank.mappers.AccountMapper;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,7 +73,6 @@ public class AccountService {
         BankAccount bankAccount = BankAccount.builder()
                 .balance(BigDecimal.ZERO)
                 .user(user)
-                .listTransactions(new ArrayList<>())
                 .build();
 
         save(bankAccount);
@@ -88,18 +87,31 @@ public class AccountService {
      * @param id идентификатор счета
      * @return DTO с информацией о счете
      */
-    public AccountResponseDto getAccountById(Long id) {
+    public AccountResponseDto getAccountByIdFromController(Long id) {
         log.info("Начало поиска счета по id: {}", id);
 
         AccountResponseDto dto = accountRepository.findByIdAndStatus(id, AccountStatus.ACTIVE)
                 .map(accountMapper::toResponseDto)
-                .orElseThrow(() -> {
-                    log.error("Счет не найден: {}", id);
-                    return new AccountNotFoundException("Счет не найден. Его id: " + id);
-                });
+                .orElseThrow(() -> new AccountNotFoundException("Счет не найден. Его id: " + id));
 
         log.info("Счет найден. id: {}", id);
         return dto;
+    }
+
+    /**
+     * Получает информацию о счете по его идентификатору.
+     *
+     * @param id идентификатор счета
+     * @return DTO с информацией о счете
+     */
+    public BankAccount getAccountById(Long id) {
+        log.info("Начало поиска счета с id: {}", id);
+
+        BankAccount account = accountRepository.findByIdAndStatus(id, AccountStatus.ACTIVE)
+                .orElseThrow(() -> new AccountNotFoundException("Счет не найден. Его id: " + id));
+
+        log.info("Счет найден. Его id: {}", id);
+        return account;
     }
 
     /**
@@ -126,10 +138,9 @@ public class AccountService {
     public Page<TransactionResponseDto> getTransactionsByAccountIdAndPageable(Long id, Pageable pageable) {
         log.info("Получение транзакций по счету {} с пагинацией {}", id, pageable);
 
-        BankAccount bankAccount = accountRepository.findByIdAndStatus(id, AccountStatus.ACTIVE)
-                .orElseThrow(() -> new AccountNotFoundException("Счет не найден: " + id));
-
-        Page<Transaction> transactionsPage = transactionService.getTransactionsByAccountId(bankAccount.getId(), pageable);
+        BankAccount bankAccount = getAccountById(id);
+        Page<Transaction> transactionsPage = transactionService
+                .getTransactionsByAccountId(bankAccount.getId(), pageable);
 
         return transactionsPage.map(transactionMapper::toResponseDto);
     }
@@ -145,18 +156,16 @@ public class AccountService {
         log.info("Начало списание средств со счета. id: {}", id);
 
         validator.validateUnderOperation(id, amount);
-        AccountResponseDto account = getAccountById(id);
+        BankAccount account = getAccountById(id);
 
-        if (account.getBalance().compareTo(amount) < 0) {
-            log.error("Недостаточно средств. Попытка списания средств со счета. Id: {}", account.getId());
+        if (account.getBalance().compareTo(amount) < 0)
             throw new AccountValidationException("Недостаточно средств на счете для списания");
-        }
 
         account.setBalance(account.getBalance().subtract(amount));
+        save(account);
+        transactionService.createTransaction(amount, TransactionType.WITHDRAWAL, TransactionCategories.OTHER, id);
 
-        save(accountMapper.toEntityFromResponseDto(account));
-
-        log.info("Произведено списание со счета на сумму: {}. Id: {}", amount, account.getId());
+        log.info("Произведено списание со счета на сумму: {}. UUID: {}", amount, account.getNumberAccount());
     }
 
     /**
@@ -170,12 +179,12 @@ public class AccountService {
         log.info("Начало пополнения средств на счета Id: {}", id);
 
         validator.validateUnderOperation(id, amount);
-        AccountResponseDto account = getAccountById(id);
+        BankAccount account = getAccountById(id);
         account.setBalance(account.getBalance().add(amount));
+        save(account);
+        transactionService.createTransaction(amount, TransactionType.DEPOSIT, TransactionCategories.OTHER, id);
 
-        save(accountMapper.toEntityFromResponseDto(account));
-
-        log.info("Произведено пополнение со счета на сумму: {}. Id: {}", amount, account.getId());
+        log.info("Произведено пополнение со счета на сумму: {}. UUID: {}", amount, account.getNumberAccount());
     }
 
     /**
@@ -196,7 +205,9 @@ public class AccountService {
 
         bankAccounts.forEach(account -> {
             account.setStatus(accountStatus);
-            transactionService.updateTransactionsStatus(account.getListTransactions(), accountStatus);
+            if (account.getListTransactions() != null && !account.getListTransactions().isEmpty()) {
+                transactionService.updateTransactionsStatus(account.getListTransactions(), accountStatus);
+            }
             accountRepository.save(account);
         });
 
@@ -214,8 +225,7 @@ public class AccountService {
         log.info("Попытка изменения статуса счета на {} с ID: {}", newStatus, id);
 
         BankAccount bankAccount = accountRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Счет не найден по id: " + id));
-
+                .orElseThrow(() -> new AccountNotFoundException("Счет не найден. Его id: " + id));
         AccountStatus oldStatus = bankAccount.getStatus();
         validator.checkAccountStatus(newStatus, oldStatus);
         bankAccount.setStatus(newStatus);

@@ -1,5 +1,6 @@
 package com.gigabank.controllers;
 
+import com.gigabank.models.dto.request.account.ChangeStatusAccountRequest;
 import com.gigabank.models.dto.request.account.CreateAccountRequestDto;
 import com.gigabank.models.dto.response.AccountResponseDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
@@ -20,7 +21,7 @@ import java.math.BigDecimal;
  * Все методы требуют аутентификации и соответствующих прав доступа.
  */
 @RestController
-@RequestMapping("/accounts")
+@RequestMapping("/api/accounts")
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
@@ -46,7 +47,7 @@ public class AccountController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public AccountResponseDto getAccountById(@PathVariable Long id) {
-        return accountService.getAccountById(id);
+        return accountService.getAccountByIdFromController(id);
     }
 
     /**
@@ -57,9 +58,8 @@ public class AccountController {
      */
     @GetMapping("/{id}/transactions")
     @ResponseStatus(HttpStatus.OK)
-    public Page<TransactionResponseDto> getAccountTransactions(
-            @PathVariable Long id,
-            Pageable pageable) {
+    public Page<TransactionResponseDto> getAccountTransactions(@PathVariable Long id,
+                                                               Pageable pageable) {
         return accountService.getTransactionsByAccountIdAndPageable(id, pageable);
     }
 
@@ -87,20 +87,16 @@ public class AccountController {
         accountService.deposit(id, amount);
     }
 
-    //todo Переписать методы и часть их удалить. + переписать delete на change
-    //todo Подумать про каскадное удаление. Идея следующая:
-    // при удалении счета\пользователя у всех изменять статус, а не удалять.
-
     /**
-     * Удаляет счет по его идентификатору.
+     * Изменяет статус счета и транзакций по идентификатору.
      *
-     * @param id уникальный идентификатор счета для удаления
+     * @param id      идентификатор счета
+     * @param request DTO с новым статусом и причиной изменения
      */
-    @DeleteMapping("/{id}/delete")
+    @PutMapping("/{id}/status")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Изменить статус на DELETED",
-            description = "Изменяет состояние счета с ACTIVE на DELETED по его id")
-    public void deleteAccount(@PathVariable Long id) {
-        accountService.deleteById(id);
+    public void changeAccountStatus(@PathVariable Long id,
+                                    @Valid @RequestBody ChangeStatusAccountRequest request) {
+        accountService.changeAccountStatus(id, request.getStatus(), request.getReason());
     }
 }

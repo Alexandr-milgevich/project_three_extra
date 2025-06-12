@@ -1,7 +1,7 @@
 package com.gigabank.models.dto.response;
 
 import com.gigabank.constants.TransactionType;
-import jakarta.validation.constraints.*;
+import com.gigabank.models.entity.BankAccount;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -19,29 +19,19 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 public class TransactionResponseDto {
-    @NotNull
-    @PositiveOrZero
-    Long id;
-
-    @NotNull(message = "Сумма обязательна")
-    @PositiveOrZero(message = "Сумма транзакции не может быть отрицательной")
+    String transactionUuid;
     BigDecimal amount;
-
-    @Builder.Default
-    TransactionType type = TransactionType.PAYMENT; //Тип транзакции (DEPOSIT, WITHDRAWAL, PAYMENT).
-
-    @NotBlank(message = "Категория транзакции должна быть указана")
+    TransactionType type;
     String category;
-
-    @NotEmpty(message = "Дата и время создания транзакции должна быть указана")
-    @PastOrPresent(message = "Дата и время создания транзакции не может быть в будущем.")
     LocalDateTime createdDate;
 
     // Необязательные поля — зависят от источника оплаты
 
-    private String bankName;              //Название банка (если банковский перевод).
-    private String cardNumber;            //Последние 4 цифры карты (если платёж по карте).
-    private String merchantName;          //Название магазина или поставщика услуг.
-    private String digitalWalletId;       //Идентификатор электронного кошелька (при оплате через электронные кошельки).
-    private String merchantCategoryCode;  //MCC-код продавца.
+    String bankName;              //Название банка (если банковский перевод).
+    String cardNumber;            //Последние 4 цифры карты (если платёж по карте).
+    String merchantName;          //Название магазина или поставщика услуг.
+    String digitalWalletId;       //Идентификатор электронного кошелька (при оплате через электронные кошельки).
+    String merchantCategoryCode;  //MCC-код продавца.
+
+    BankAccount bankAccount;
 }

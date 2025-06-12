@@ -34,7 +34,7 @@ public class ValidateAccountService {
         log.info("Начало валидации счета перед сохранением.");
 
         checkAccount(bankAccount);
-        checkId(bankAccount.getId());
+        checkUuid(bankAccount.getNumberAccount());
         checkBalance(bankAccount.getBalance());
         checkUser(bankAccount.getUser());
 
@@ -44,16 +44,21 @@ public class ValidateAccountService {
     /**
      * Проверяет счет и сумму для совершения финансовой операции.
      *
-     * @param accountId ID счета (не null)
-     * @param amount    сумма операции (должна быть > 0)
+     * @param id     идентификатор счета (не null)
+     * @param amount сумма операции (должна быть > 0)
      */
-    public void validateUnderOperation(Long accountId, BigDecimal amount) {
+    public void validateUnderOperation(Long id, BigDecimal amount) {
         log.info("Начало валидации данных перед операцией со счетом.");
 
         checkAmount(amount);
-        checkId(accountId);
+        checkId(id);
 
-        log.info("ValidateAccountService.validateUnderOperation: Завершение валидации данных перед операцией со счетом.");
+        log.info("Завершение валидации данных перед операцией со счетом.");
+    }
+
+    public void validateUnderTransferOperation(Long fromAccountId, Long toAccountId, BigDecimal amount) {
+        checkAmount(amount);
+        checkTwoIdOnNull(fromAccountId, toAccountId);
     }
 
     /**
@@ -92,10 +97,25 @@ public class ValidateAccountService {
     }
 
     /**
+     * Проверяет наличие UUID счета.
+     */
+    private void checkUuid(String uuid) {
+        if (!isFilled(uuid)) throw new AccountValidationException("UUID не может быть пустым.");
+    }
+
+    /**
      * Проверяет наличие ID счета.
      */
     private void checkId(Long id) {
         if (!isFilled(id)) throw new AccountValidationException("Id не может быть пустым.");
+    }
+
+    /**
+     * Проверяет наличие двух ID счета.
+     */
+    private void checkTwoIdOnNull(Long fromAccountId, Long toAccountId) {
+        if (!isFilled(fromAccountId) & !isFilled(toAccountId))
+            throw new AccountValidationException("Id не может быть пустым.");
     }
 
     /**

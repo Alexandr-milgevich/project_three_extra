@@ -1,12 +1,11 @@
 CREATE TABLE IF NOT EXISTS public.refund
 (
-    refund_id      BIGINT       NOT NULL UNIQUE,
-    amount         INTEGER      NOT NULL,
-    description    VARCHAR(300) NOT NULL,
-    transaction_id BIGINT       NOT NULL,
-    CONSTRAINT refund_pkey PRIMARY KEY (refund_id),
-    CONSTRAINT refund_fk_transaction FOREIGN KEY (transaction_id)
-        REFERENCES transaction (transaction_id)
+    refund_id        BIGSERIAL      PRIMARY KEY,
+    amount           DECIMAL(19, 2) NOT NULL,
+    description      VARCHAR(300),
+    transaction_uuid VARCHAR(36)    NOT NULL,
+    CONSTRAINT refund_fk_transaction FOREIGN KEY (transaction_uuid)
+        REFERENCES transaction (transaction_uuid)
         ON UPDATE CASCADE
         ON DELETE RESTRICT
 );

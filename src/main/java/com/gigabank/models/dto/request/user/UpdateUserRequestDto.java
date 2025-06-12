@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,9 +17,10 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateUserRequestDto {
+    Long id;
+    String username;
     @Email
     String email;
-    String username;
     String phoneNumber;
-    List<AccountResponseDto> listAccountDto = new ArrayList<>();
+    List<AccountResponseDto> listAccountDto;
 }

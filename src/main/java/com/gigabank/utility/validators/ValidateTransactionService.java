@@ -1,5 +1,6 @@
 package com.gigabank.utility.validators;
 
+import com.gigabank.constants.TransactionCategories;
 import com.gigabank.constants.TransactionType;
 import com.gigabank.constants.status.TransactionStatus;
 import com.gigabank.exceptions.transaction.TransactionValidationException;
@@ -24,7 +25,9 @@ import static com.gigabank.constants.TransactionType.SUPPORTED_TYPES;
 @RequiredArgsConstructor
 public class ValidateTransactionService {
 
-
+    /**
+     * Производит валидацию данных перед сохранением транзакции.
+     */
     public void validateUnderSave(Transaction transaction) {
         log.info("Начало валидации транзакции перед сохранением.");
 
@@ -82,7 +85,7 @@ public class ValidateTransactionService {
      *
      * @param category проверяемая категория
      */
-    private void checkCategory(String category) {
+    private void checkCategory(TransactionCategories category) {
         if (category == null || !VALID_TRANSACTION_CATEGORIES.contains(category))
             throw new TransactionValidationException("Недопустимая категория транзакции: " + category);
     }

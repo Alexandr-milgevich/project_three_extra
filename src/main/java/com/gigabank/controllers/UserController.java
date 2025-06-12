@@ -1,5 +1,6 @@
 package com.gigabank.controllers;
 
+import com.gigabank.models.dto.request.user.ChangeStatusUserRequest;
 import com.gigabank.models.dto.request.user.CreateUserRequestDto;
 import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * пользователей на основе их идентификаторов или email.
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -26,7 +27,7 @@ public class UserController {
      * @param createDto DTO с данными для создания пользователя
      * @return DTO созданного пользователя
      */
-    @PostMapping("/new")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDto createUser(@Valid @RequestBody CreateUserRequestDto createDto) {
         return userService.createUser(createDto);
@@ -39,8 +40,9 @@ public class UserController {
      * @return DTO пользователя
      */
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public UserResponseDto getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+        return userService.getUserByIdFromController(id);
     }
 
     /**
@@ -51,22 +53,24 @@ public class UserController {
      * @return DTO обновленного пользователя
      */
     @PutMapping("/update/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public UserResponseDto updateUser(@PathVariable Long id,
                                       @Valid @RequestBody UpdateUserRequestDto updateDto) {
         return userService.updateUser(id, updateDto);
     }
 
-    //todo Подумать про каскадное удаление. Идея следующая:
-    // при удалении счета\пользователя у всех изменять статус, а не удалять.
-
     /**
-     * Удаляет пользователя по идентификатору.
+     * Изменяет статус пользователя по идентификатору.
+     * Также изменяются каскадно статусы его счетов
+     * и транзакций на соответствующий.
      *
-     * @param id идентификатор пользователя
+     * @param id      идентификатор пользователя
+     * @param request DTO с новым статусом и причиной изменения
      */
-    @DeleteMapping("/delete/id/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUserById(@PathVariable Long id) {
-        userService.deleteUserById(id);
+    @PutMapping("/{id}/status")
+    @ResponseStatus(HttpStatus.OK)
+    public void changeUserStatus(@PathVariable Long id,
+                                 @Valid @RequestBody ChangeStatusUserRequest request) {
+        userService.changeUserStatus(id, request.getStatus(), request.getReason());
     }
 }
