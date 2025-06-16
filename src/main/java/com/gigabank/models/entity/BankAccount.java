@@ -28,11 +28,11 @@ public class BankAccount {
     @Version
     private Long version;
 
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "account_id")
     private Long id;
 
-    @Id
     @Default
     @Column(name = "number_account")
     private String numberAccount = UUID.randomUUID().toString();

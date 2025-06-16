@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
  * пользователей на основе их идентификаторов или email.
  */
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;

@@ -1,10 +1,12 @@
 package com.gigabank.service.bank.service;
 
 import com.gigabank.constants.PaymentType;
+import com.gigabank.constants.TransactionCategories;
 import com.gigabank.constants.TransactionType;
 import com.gigabank.models.dto.request.account.AccountRequestDto;
-import com.gigabank.models.dto.response.TransactionResponseDto;
-import com.gigabank.models.dto.response.UserResponseDto;
+import com.gigabank.models.entity.BankAccount;
+import com.gigabank.models.entity.Transaction;
+import com.gigabank.models.entity.User;
 import com.gigabank.service.bank.service.factory.PaymentServiceStrategyFactory;
 import com.gigabank.service.bank.service.strategy.PaymentServiceStrategy;
 import jakarta.transaction.Transactional;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +36,7 @@ public class BankAccountService {
      * @param strategy   стратегия обработки платежа ({@link PaymentServiceStrategy})
      * @param details    дополнительные детали платежа
      */
-    public void processPayment(AccountRequestDto accountDto, BigDecimal amount,
-                               PaymentServiceStrategy strategy,
+    public void processPayment(AccountRequestDto accountDto, BigDecimal amount,PaymentServiceStrategy strategy,
                                Map<String, String> details) {
         strategy.process(accountDto, amount, details);
     }
@@ -55,23 +55,14 @@ public class BankAccountService {
     /**
      * Обрабатывает платеж банковской картой.
      *
-     * @param accountDto   банковский счет для списания
-     * @param amount       сумма платежа
-     * @param cardNumber   последние 4 цифры номера карты
-     * @param merchantName название мерчанта
+     * @param accountDto банковский счет для списания
+     * @param amount     сумма платежа
      */
     public void processCardPayment(AccountRequestDto accountDto, BigDecimal amount,
-                                   String cardNumber, String merchantName) {
-        Map<String, String> details = new HashMap<>();
-        details.put("category", "Education");
-        details.put("createdDate", LocalDateTime.now().minusDays(10).toString());
-        details.put("cardNumber", cardNumber);
-        details.put("merchantName", merchantName);
-
-        processPayment(accountDto,
-                amount,
-                paymentStrategyFactory.getPaymentStrategy(PaymentType.CARD),
-                details);
+                                   Map<String, String> details) {
+//        details.put("cardNumber", cardNumber);
+//        details.put("merchantName", merchantName);
+        processPayment(accountDto, amount, paymentStrategyFactory.getPaymentStrategy(PaymentType.CARD), details);
     }
 
     /**
@@ -79,18 +70,10 @@ public class BankAccountService {
      *
      * @param accountDto банковский счет для списания
      * @param amount     сумма перевода
-     * @param bankName   название банка-получателя
      */
-    public void processBankTransfer(AccountRequestDto accountDto, BigDecimal amount, String bankName) {
-        Map<String, String> details = new HashMap<>();
-        details.put("category", "Beauty");
-        details.put("createdDate", LocalDateTime.now().minusDays(8).toString());
-        details.put("bankName", bankName);
-
-        processPayment(accountDto,
-                amount,
-                paymentStrategyFactory.getPaymentStrategy(PaymentType.BANK),
-                details);
+    public void processBankTransfer(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
+//        details.put("bankName", bankName);
+        processPayment(accountDto, amount, paymentStrategyFactory.getPaymentStrategy(PaymentType.BANK), details);
     }
 
     /**
@@ -98,52 +81,41 @@ public class BankAccountService {
      *
      * @param accountDto банковский счет для списания
      * @param amount     сумма платежа
-     * @param walletId   идентификатор электронного кошелька
      */
-    public void processWalletPayment(AccountRequestDto accountDto, BigDecimal amount, String walletId) {
-        Map<String, String> details = new HashMap<>();
-        details.put("category", "Health");
-        details.put("createdDate", LocalDateTime.now().minusDays(6).toString());
-        details.put("walletId", walletId);
-
-        processPayment(accountDto,
-                amount,
-                paymentStrategyFactory.getPaymentStrategy(PaymentType.WALLET),
-                details);
+    public void processWalletPayment(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
+//        details.put("walletId", walletId);
+        processPayment(accountDto, amount, paymentStrategyFactory.getPaymentStrategy(PaymentType.WALLET), details);
     }
 
     /**
      * Создает тестовый банковский счет с демонстрационными данными.
      */
     public static void createTestAccount() {
-        UserResponseDto userResponseDto = new UserResponseDto();
-        userResponseDto.setId(0L);
-        userResponseDto.setUsername("John");
-        userResponseDto.setBirthDate(LocalDateTime.now().minusYears(25).toLocalDate());
-        userResponseDto.setEmail("john.doe@example.com");
-        userResponseDto.setPhoneNumber("+1234567890");
+        User user = User.builder()
+                .username("John")
+                .email("john@gmail.com")
+                .phoneNumber("+1234567890")
+                .build();
 
-        AccountRequestDto accountDto = new AccountRequestDto();
-        accountDto.setId(1L);
-        accountDto.setBalance(new BigDecimal("5000.00"));
-        accountDto.setUserResponseDto(userResponseDto);
+        BankAccount bankAccount = BankAccount.builder()
+                .balance(new BigDecimal("5000.00"))
+                .user(user)
+                .build();
 
-        TransactionResponseDto transactionResponseDto1 = TransactionResponseDto.builder()
-                .id(0L)
+        Transaction transaction = Transaction.builder()
                 .amount(new BigDecimal("100.00"))
-                .type(TransactionType.PAYMENT)
-                .category("Electronics")
+                .type(String.valueOf(TransactionType.PAYMENT))
+                .category(String.valueOf(TransactionCategories.OTHER))
                 .createdDate(LocalDateTime.now().minusDays(5))
                 .build();
 
-        TransactionResponseDto transactionResponseDto2 = TransactionResponseDto.builder()
-                .id(1L)
+        Transaction transaction2 = Transaction.builder()
                 .amount(new BigDecimal("200.00"))
-                .type(TransactionType.DEPOSIT)
-                .category("Groceries")
+                .type(String.valueOf(TransactionType.DEPOSIT))
+                .category(String.valueOf(TransactionCategories.OTHER))
                 .createdDate(LocalDateTime.now().minusDays(2))
                 .build();
 
-        accountDto.getListTransactionResponseDto().addAll(List.of(transactionResponseDto1, transactionResponseDto2));
+        bankAccount.getListTransactions().addAll(List.of(transaction, transaction2));
     }
 }

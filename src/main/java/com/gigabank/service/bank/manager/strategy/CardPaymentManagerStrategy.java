@@ -1,7 +1,7 @@
 package com.gigabank.service.bank.manager.strategy;
 
 import com.gigabank.models.dto.request.account.AccountRequestDto;
-import com.gigabank.models.dto.request.user.UserAnotherRequestDto;
+import com.gigabank.models.dto.request.user.AnotherRequestDto;
 import com.gigabank.service.PaymentGatewayService;
 import com.gigabank.service.bank.service.BankAccountService;
 import com.gigabank.service.notification.NotificationAdapter;
@@ -40,10 +40,10 @@ public class CardPaymentManagerStrategy implements PaymentManagerStrategy {
      * </p>
      *
      * @param accountDto банковский счет ({@link AccountRequestDto}), с которого выполняется списание
-     * @param request    данные платежного запроса ({@link UserAnotherRequestDto}), включая сумму платежа
+     * @param request    данные платежного запроса ({@link AnotherRequestDto}), включая сумму платежа
      */
     @Override
-    public void process(AccountRequestDto accountDto, UserAnotherRequestDto request) {
+    public void process(AccountRequestDto accountDto, AnotherRequestDto request) {
         paymentGatewayService.authorize("tx", request.getAmount());
         bankAccountService.withdraw(accountDto, request.getAmount());
         System.out.println("Card payment for account " + accountDto.getId());

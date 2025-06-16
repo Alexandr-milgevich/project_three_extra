@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -24,16 +25,14 @@ public class SecurityLoggingProxy {
      *
      * @param accountDto   банковский счет для списания
      * @param amount       сумма платежа
-     * @param cardNumber   номер карты (последние 4 цифры)
-     * @param merchantName название мерчанта
      */
-    public void processCardPayment(AccountRequestDto accountDto, BigDecimal amount, String cardNumber, String merchantName) {
+    public void processCardPayment(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
 
         if (accessGranted) {
             System.out.println("Доступ разрешён. Выполняем операцию...");
-            bankAccountService.processCardPayment(accountDto, amount, cardNumber, merchantName);
+            bankAccountService.processCardPayment(accountDto, amount, details);
         } else {
             System.out.println("Доступ запрещён. Операция отменена.");
         }
@@ -44,15 +43,14 @@ public class SecurityLoggingProxy {
      *
      * @param accountDto банковский счет для списания
      * @param amount     сумма перевода
-     * @param bankName   название банка-получателя
      */
-    public void processBankTransfer(AccountRequestDto accountDto, BigDecimal amount, String bankName) {
+    public void processBankTransfer(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
 
         if (accessGranted) {
             System.out.println("Доступ разрешён. Выполняем операцию...");
-            bankAccountService.processBankTransfer(accountDto, amount, bankName);
+            bankAccountService.processBankTransfer(accountDto, amount, details);
         } else {
             System.out.println("Доступ запрещён. Операция отменена.");
         }
@@ -63,15 +61,14 @@ public class SecurityLoggingProxy {
      *
      * @param accountDto банковский счет для списания
      * @param amount     сумма платежа
-     * @param walletId   идентификатор электронного кошелька
      */
-    public void processWalletPayment(AccountRequestDto accountDto, BigDecimal amount, String walletId) {
+    public void processWalletPayment(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
 
         if (accessGranted) {
             System.out.println("Доступ разрешён. Выполняем операцию...");
-            bankAccountService.processWalletPayment(accountDto, amount, walletId);
+            bankAccountService.processWalletPayment(accountDto, amount, details);
         } else {
             System.out.println("Доступ запрещён. Операция отменена.");
         }

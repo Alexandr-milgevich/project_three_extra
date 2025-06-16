@@ -1,7 +1,7 @@
 package com.gigabank.service.bank.manager.strategy;
 
 import com.gigabank.models.dto.request.account.AccountRequestDto;
-import com.gigabank.models.dto.request.user.UserAnotherRequestDto;
+import com.gigabank.models.dto.request.user.AnotherRequestDto;
 import com.gigabank.service.PaymentGatewayService;
 import com.gigabank.service.notification.NotificationAdapter;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +38,10 @@ public class BankPaymentManagerStrategy implements PaymentManagerStrategy {
      * </p>
      *
      * @param accountDto банковский счет ({@link AccountRequestDto})
-     * @param request    данные платежного запроса ({@link UserAnotherRequestDto})
+     * @param request    данные платежного запроса ({@link AnotherRequestDto})
      */
     @Override
-    public void process(AccountRequestDto accountDto, UserAnotherRequestDto request) {
+    public void process(AccountRequestDto accountDto, AnotherRequestDto request) {
         paymentGatewayService.authorize("tx", request.getAmount());
         System.out.println("Bank payment for account " + accountDto.getId());
         notificationAdapter.sendAllNotificationToUser(

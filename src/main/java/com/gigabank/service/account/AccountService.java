@@ -1,18 +1,13 @@
 package com.gigabank.service.account;
 
-import com.gigabank.constants.TransactionCategories;
-import com.gigabank.constants.TransactionType;
 import com.gigabank.constants.status.AccountStatus;
 import com.gigabank.constants.status.UserStatus;
-import com.gigabank.exceptions.account.AccountNotFoundException;
-import com.gigabank.exceptions.account.AccountValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;
 import com.gigabank.mappers.AccountMapper;
-import com.gigabank.mappers.TransactionMapper;
 import com.gigabank.models.dto.request.account.CreateAccountRequestDto;
 import com.gigabank.models.dto.response.AccountResponseDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.entity.BankAccount;
-import com.gigabank.models.entity.Transaction;
 import com.gigabank.models.entity.User;
 import com.gigabank.repository.AccountRepository;
 import com.gigabank.service.transaction.TransactionService;
@@ -39,7 +34,6 @@ import java.util.List;
 public class AccountService {
     private final AccountMapper accountMapper;
     private final AccountRepository accountRepository;
-    private final TransactionMapper transactionMapper;
     private final TransactionService transactionService;
     private final ValidateAccountService validator;
 
@@ -92,7 +86,7 @@ public class AccountService {
 
         AccountResponseDto dto = accountRepository.findByIdAndStatus(id, AccountStatus.ACTIVE)
                 .map(accountMapper::toResponseDto)
-                .orElseThrow(() -> new AccountNotFoundException("Счет не найден. Его id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BankAccount.class, id));
 
         log.info("Счет найден. id: {}", id);
         return dto;
@@ -108,7 +102,7 @@ public class AccountService {
         log.info("Начало поиска счета с id: {}", id);
 
         BankAccount account = accountRepository.findByIdAndStatus(id, AccountStatus.ACTIVE)
-                .orElseThrow(() -> new AccountNotFoundException("Счет не найден. Его id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BankAccount.class, id));
 
         log.info("Счет найден. Его id: {}", id);
         return account;
@@ -138,53 +132,13 @@ public class AccountService {
     public Page<TransactionResponseDto> getTransactionsByAccountIdAndPageable(Long id, Pageable pageable) {
         log.info("Получение транзакций по счету {} с пагинацией {}", id, pageable);
 
-        BankAccount bankAccount = getAccountById(id);
-        Page<Transaction> transactionsPage = transactionService
-                .getTransactionsByAccountId(bankAccount.getId(), pageable);
-
-        return transactionsPage.map(transactionMapper::toResponseDto);
-    }
-
-    /**
-     * Выполняет списание средств с указанного счета.
-     *
-     * @param id     идентификатор счета для списания
-     * @param amount сумма для списания
-     */
-    @Transactional
-    public void withdraw(Long id, BigDecimal amount) {
-        log.info("Начало списание средств со счета. id: {}", id);
-
-        validator.validateUnderOperation(id, amount);
         BankAccount account = getAccountById(id);
 
-        if (account.getBalance().compareTo(amount) < 0)
-            throw new AccountValidationException("Недостаточно средств на счете для списания");
+        Page<TransactionResponseDto> transactionsPage = transactionService
+                .getByBankAccountAndPageable(account, pageable);
 
-        account.setBalance(account.getBalance().subtract(amount));
-        save(account);
-        transactionService.createTransaction(amount, TransactionType.WITHDRAWAL, TransactionCategories.OTHER, id);
-
-        log.info("Произведено списание со счета на сумму: {}. UUID: {}", amount, account.getNumberAccount());
-    }
-
-    /**
-     * Выполняет пополнение указанного счета.
-     *
-     * @param id     идентификатор счета для пополнения
-     * @param amount сумма для пополнения
-     */
-    @Transactional
-    public void deposit(Long id, BigDecimal amount) {
-        log.info("Начало пополнения средств на счета Id: {}", id);
-
-        validator.validateUnderOperation(id, amount);
-        BankAccount account = getAccountById(id);
-        account.setBalance(account.getBalance().add(amount));
-        save(account);
-        transactionService.createTransaction(amount, TransactionType.DEPOSIT, TransactionCategories.OTHER, id);
-
-        log.info("Произведено пополнение со счета на сумму: {}. UUID: {}", amount, account.getNumberAccount());
+        log.info("Получены транзакции с пагинацией");
+        return transactionsPage;
     }
 
     /**
@@ -221,11 +175,11 @@ public class AccountService {
      * @param newStatus новый статус пользователя
      */
     @Transactional
-    public void changeAccountStatus(Long id, AccountStatus newStatus, String reason) {
+    public void changeAccountStatus(Long id, AccountStatus newStatus) {
         log.info("Попытка изменения статуса счета на {} с ID: {}", newStatus, id);
 
         BankAccount bankAccount = accountRepository.findById(id)
-                .orElseThrow(() -> new AccountNotFoundException("Счет не найден. Его id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(BankAccount.class, id));
         AccountStatus oldStatus = bankAccount.getStatus();
         validator.checkAccountStatus(newStatus, oldStatus);
         bankAccount.setStatus(newStatus);

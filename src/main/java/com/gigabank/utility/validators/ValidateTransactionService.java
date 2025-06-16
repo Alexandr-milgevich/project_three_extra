@@ -1,9 +1,7 @@
 package com.gigabank.utility.validators;
 
-import com.gigabank.constants.TransactionCategories;
-import com.gigabank.constants.TransactionType;
 import com.gigabank.constants.status.TransactionStatus;
-import com.gigabank.exceptions.transaction.TransactionValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 import com.gigabank.models.entity.Transaction;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +45,7 @@ public class ValidateTransactionService {
      */
     public void checkTransactionStatus(TransactionStatus newStatus, TransactionStatus oldStatus) {
         if (TransactionStatus.isValid(newStatus.name()) || oldStatus == newStatus)
-            throw new TransactionValidationException("Недопустимый статус. Новый статус: "
+            throw new EntityValidationException(Transaction.class, "Недопустимый статус. Новый статус: "
                     + newStatus.name() + ".Старый статус: " + oldStatus.name());
     }
 
@@ -57,7 +55,8 @@ public class ValidateTransactionService {
      * @param transactionId идентификатор транзакции
      */
     private void checkId(Long transactionId) {
-        if (transactionId == null) throw new TransactionValidationException("Id не может быть пустым");
+        if (transactionId == null)
+            throw new EntityValidationException(Transaction.class, "Id не может быть пустым");
     }
 
     /**
@@ -67,7 +66,7 @@ public class ValidateTransactionService {
      */
     private void checkAmount(BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0)
-            throw new TransactionValidationException("Недопустимая сумма операции: " + amount);
+            throw new EntityValidationException(Transaction.class, "Недопустимая сумма операции: " + amount);
     }
 
     /**
@@ -75,9 +74,9 @@ public class ValidateTransactionService {
      *
      * @param transactionType тип транзакции
      */
-    private void checkType(TransactionType transactionType) {
+    private void checkType(String transactionType) {
         if (transactionType == null || !SUPPORTED_TYPES.contains(transactionType))
-            throw new TransactionValidationException("Недопустимый тип транзакции: " + transactionType);
+            throw new EntityValidationException(Transaction.class, "Недопустимый тип транзакции: " + transactionType);
     }
 
     /**
@@ -85,9 +84,9 @@ public class ValidateTransactionService {
      *
      * @param category проверяемая категория
      */
-    private void checkCategory(TransactionCategories category) {
+    private void checkCategory(String category) {
         if (category == null || !VALID_TRANSACTION_CATEGORIES.contains(category))
-            throw new TransactionValidationException("Недопустимая категория транзакции: " + category);
+            throw new EntityValidationException(Transaction.class, "Недопустимая категория транзакции: " + category);
     }
 
     /**

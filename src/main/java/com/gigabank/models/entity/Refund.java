@@ -28,6 +28,6 @@ public class Refund {
     private String description;
 
     @OneToOne
-    @JoinColumn(name = "transaction_uuid", referencedColumnName = "transaction_uuid", insertable = false, updatable = false)
+    @JoinColumn(name = "transaction_id", referencedColumnName = "transaction_id", insertable = false, updatable = false)
     private Transaction transaction;
 }

@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponseDto {
-    Long id;
     String email;
     String username;
     String phoneNumber;

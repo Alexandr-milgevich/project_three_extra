@@ -1,6 +1,6 @@
 package com.gigabank.constants.status;
 
-import com.gigabank.exceptions.User.UserValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 
 /**
  * Перечисление, определяющее статус пользователя в системе.
@@ -18,7 +18,7 @@ public enum UserStatus {
         try {
             UserStatus.valueOf(status);
             return true;
-        } catch (UserValidationException e) {
+        } catch (EntityValidationException e) {
             return false;
         }
     }

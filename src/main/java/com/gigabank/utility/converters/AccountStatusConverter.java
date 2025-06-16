@@ -1,7 +1,8 @@
 package com.gigabank.utility.converters;
 
 import com.gigabank.constants.status.AccountStatus;
-import com.gigabank.exceptions.account.AccountValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
+import com.gigabank.models.entity.BankAccount;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
@@ -21,7 +22,8 @@ public class AccountStatusConverter implements AttributeConverter<AccountStatus,
      */
     @Override
     public String convertToDatabaseColumn(AccountStatus status) {
-        if (Objects.isNull(status)) throw new AccountValidationException("Статус не может быть пустым");
+        if (Objects.isNull(status))
+            throw new EntityValidationException(BankAccount.class, "Статус не может быть пустым");
         return switch (status) {
             case ACTIVE -> "Active";
             case BLOCKED -> "Blocked";
@@ -31,19 +33,20 @@ public class AccountStatusConverter implements AttributeConverter<AccountStatus,
 
     /**
      * Преобразует строковое значение из базы данных в соответствующий {@link AccountStatus}.
-     * Если значение неизвестно или null, выбрасывает {@link AccountValidationException}.
+     * Если значение неизвестно или null, выбрасывает {@link EntityValidationException}.
      *
      * @param dbData строковое значение статуса из базы данных
      * @return соответствующий статус счета {@link AccountStatus}
      */
     @Override
     public AccountStatus convertToEntityAttribute(String dbData) {
-        if (Objects.isNull(dbData)) throw new AccountValidationException("Статус не может быть пустым");
+        if (Objects.isNull(dbData))
+            throw new EntityValidationException(BankAccount.class, "Статус не может быть пустым");
         return switch (dbData) {
             case "Active" -> AccountStatus.ACTIVE;
             case "Blocked" -> AccountStatus.BLOCKED;
             case "Archived" -> AccountStatus.ARCHIVED;
-            default -> throw new AccountValidationException("Неизвестный статус: " + dbData);
+            default -> throw new EntityValidationException(BankAccount.class, "Неизвестный статус: " + dbData);
         };
     }
 }

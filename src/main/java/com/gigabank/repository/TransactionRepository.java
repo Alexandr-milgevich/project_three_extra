@@ -1,6 +1,7 @@
 package com.gigabank.repository;
 
 import com.gigabank.constants.status.TransactionStatus;
+import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,9 +16,7 @@ import java.util.Optional;
  */
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, String> {
-    Optional<Transaction> findById(Long id);
-
     Optional<Transaction> findByIdAndStatus(Long id, TransactionStatus status);
 
-    Page<Transaction> findByAccountId(Long id, Pageable pageable);
+    Page<Transaction> findByBankAccount(BankAccount bankAccount, Pageable pageable);
 }

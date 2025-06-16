@@ -1,18 +1,17 @@
 package com.gigabank.service.transaction;
 
-import com.gigabank.constants.TransactionCategories;
-import com.gigabank.constants.TransactionType;
 import com.gigabank.constants.status.AccountStatus;
 import com.gigabank.constants.status.TransactionStatus;
-import com.gigabank.exceptions.transaction.TransactionNotFoundException;
-import com.gigabank.exceptions.transaction.TransactionValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;
+import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 import com.gigabank.mappers.TransactionMapper;
 import com.gigabank.models.dto.request.transaction.CreateTransactionRequestDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
-import com.gigabank.models.dto.response.UserResponseDto;
+import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.Transaction;
 import com.gigabank.repository.TransactionRepository;
 import com.gigabank.service.account.AccountService;
+import com.gigabank.service.account.BankOperationService;
 import com.gigabank.utility.validators.ValidateTransactionService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Сервис отвечает за управление платежами и переводами
@@ -42,6 +35,7 @@ public class TransactionService {
     private final ValidateTransactionService validateTransactionService;
     private final TransactionMapper transactionMapper;
     private final AccountService accountService;
+    private final BankOperationService bankOperationService;
 
     /**
      * Создает новую транзакцию на основе переданных данных.
@@ -68,8 +62,8 @@ public class TransactionService {
      * @return DTO созданной транзакции
      */
     @Transactional
-    public TransactionResponseDto createTransaction(BigDecimal amount, TransactionType type,
-                                                    TransactionCategories categories, Long accountId) {
+    public TransactionResponseDto createTransaction(BigDecimal amount, String type,
+                                                    String categories, Long accountId) {
         log.info("Попытка создания транзакции.");
 
         Transaction transaction = Transaction.builder()
@@ -99,7 +93,7 @@ public class TransactionService {
 
         TransactionResponseDto dto = transactionRepository.findByIdAndStatus(id, TransactionStatus.ACTIVE)
                 .map(transactionMapper::toResponseDto)
-                .orElseThrow(() -> new TransactionNotFoundException("Транзакция не найдена по id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(Transaction.class, id));
 
         log.info("Получена транзакцию с ID: {}", id);
         return dto;
@@ -115,14 +109,20 @@ public class TransactionService {
         log.info("Попытка получить транзакцию c ID: {}", id);
 
         Transaction transaction = transactionRepository.findByIdAndStatus(id, TransactionStatus.ACTIVE)
-                .orElseThrow(() -> new TransactionNotFoundException("Транзакция не найдена по id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(Transaction.class, id));
 
         log.info("Получена транзакцию по ID: {}", id);
         return transaction;
     }
 
-    public Page<Transaction> getTransactionsByAccountId(Long accountId, Pageable pageable) {
-        return transactionRepository.findByAccountId(accountId, pageable);
+    public Page<TransactionResponseDto> getByBankAccountAndPageable(BankAccount account, Pageable pageable) {
+        log.info("Попытка получить транзакцию по счету с пагинацией по ID: {}", account.getId());
+
+        Page<TransactionResponseDto> responseDtoPage = transactionRepository.findByBankAccount(account, pageable)
+                .map(transactionMapper::toResponseDto);
+
+        log.info("Получены транзакции по счету с пагинацией по ID: {}", account.getId());
+        return responseDtoPage;
     }
 
     /**
@@ -153,10 +153,9 @@ public class TransactionService {
         log.info("Начало перевода {} со счета {} на счет {}", amount, fromAccountId, toAccountId);
 
         if (fromAccountId.equals(toAccountId))
-            throw new TransactionValidationException("Нельзя переводить на тот же счет");
-
-        accountService.withdraw(fromAccountId, amount);
-        accountService.deposit(toAccountId, amount);
+            throw new EntityValidationException(Transaction.class, "Нельзя переводить на тот же счет");
+        bankOperationService.withdraw(fromAccountId, amount);
+        bankOperationService.deposit(toAccountId, amount);
 
         log.info("Успешный перевод {} со счета {} на счет {}", amount, fromAccountId, toAccountId);
     }
@@ -192,7 +191,7 @@ public class TransactionService {
      * @param newStatus новый статус транзакции
      */
     @Transactional
-    public void changeTransactionStatus(Long id, TransactionStatus newStatus, String reason) {
+    public void changeTransactionStatus(Long id, TransactionStatus newStatus) {
         log.info("Попытка изменения статуса транзакции на {} с ID: {}", newStatus, id);
 
         Transaction transaction = getTransactionById(id);
@@ -202,69 +201,5 @@ public class TransactionService {
         save(transaction);
 
         log.info("Статус транзакции изменен c {} на {} с ID: {}", oldStatus, newStatus, id);
-    }
-
-    /**
-     * Фильтрует транзакции пользователя с использованием Predicate.
-     *
-     * @param userResponseDto пользователь, чьи транзакции нужно отфильтровать
-     * @param predicate       условие фильтрации транзакций
-     * @return список транзакций, удовлетворяющих условию.
-     * Возвращает пустой список, если user == null
-     */
-    public List<TransactionResponseDto> filterTransactions(UserResponseDto userResponseDto, Predicate<TransactionResponseDto> predicate) {
-        if (userResponseDto == null) {
-            return Collections.emptyList();
-        }
-
-        return userResponseDto.getListAccountDto().stream()
-                .flatMap(bankAccount -> bankAccount.getListTransactionResponseDto().stream())
-                .filter(predicate)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Преобразует транзакции пользователя с использованием Function.
-     *
-     * @param userResponseDto пользователь, чьи транзакции нужно преобразовать
-     * @param function        функция преобразования Transaction -> String
-     * @return список строковых представлений транзакций.
-     * Возвращает пустой список, если user == null
-     */
-    public List<String> transformTransactions(UserResponseDto userResponseDto, Function<TransactionResponseDto, String> function) {
-        if (userResponseDto == null) {
-            return Collections.emptyList();
-        }
-        return userResponseDto.getListAccountDto().stream()
-                .flatMap(bankAccount -> bankAccount.getListTransactionResponseDto().stream())
-                .map(function)
-                .collect(Collectors.toList());
-
-    }
-
-    /**
-     * Обрабатывает транзакции пользователя с использованием Consumer.
-     *
-     * @param userResponseDto пользователь, чьи транзакции нужно обработать
-     * @param consumer        функция обработки транзакций
-     */
-    public void processTransactions(UserResponseDto userResponseDto, Consumer<TransactionResponseDto> consumer) {
-        if (userResponseDto == null) {
-            return;
-        }
-
-        userResponseDto.getListAccountDto().stream()
-                .flatMap(bankAccount -> bankAccount.getListTransactionResponseDto().stream())
-                .forEach(consumer);
-    }
-
-    /**
-     * Создаёт список транзакций с использованием Supplier.
-     *
-     * @param supplier поставщик списка транзакций
-     * @return созданный список транзакций
-     */
-    public List<TransactionResponseDto> createTransactionList(Supplier<List<TransactionResponseDto>> supplier) {
-        return supplier.get();
     }
 }

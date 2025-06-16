@@ -1,7 +1,7 @@
 package com.gigabank.service;
 
 import com.gigabank.constants.status.UserStatus;
-import com.gigabank.exceptions.User.UserNotFoundException;
+import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;
 import com.gigabank.mappers.UserMapper;
 import com.gigabank.models.dto.request.user.CreateUserRequestDto;
 import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
@@ -65,7 +65,7 @@ public class UserService {
 
         UserResponseDto dto = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
                 .map(userMapper::toDto)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(User.class, id));
 
         log.info("Получен пользователь по ID: {}", id);
         return dto;
@@ -81,7 +81,7 @@ public class UserService {
         log.info("Попытка получить пользователя с ID: {}", id);
 
         User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден по id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException(User.class, id));
 
         log.info("Получен пользователь с ID: {}", id);
         return user;

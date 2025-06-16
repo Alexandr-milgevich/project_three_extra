@@ -24,11 +24,12 @@ import java.util.UUID;
 @AllArgsConstructor
 @Table(name = "transaction")
 public class Transaction {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transaction_id")
     private Long id;
 
-    @Id
+    @Default
     @Column(name = "transaction_uuid")
     private String transactionUuid = UUID.randomUUID().toString();
 
@@ -36,10 +37,10 @@ public class Transaction {
     private BigDecimal amount;
 
     @Column(name = "type", nullable = false)
-    private TransactionType type;
+    private String type;
 
     @Column(name = "category", nullable = false)
-    private TransactionCategories category;
+    private String category;
 
     @Column(name = "created_date", nullable = false)
     private LocalDateTime createdDate;
@@ -67,6 +68,6 @@ public class Transaction {
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "number_account", referencedColumnName = "number_account")
+    @JoinColumn(name = "account_id", referencedColumnName = "account_id")
     private BankAccount bankAccount;
 }

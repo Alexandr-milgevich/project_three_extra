@@ -5,6 +5,7 @@ import com.gigabank.models.dto.request.account.CreateAccountRequestDto;
 import com.gigabank.models.dto.response.AccountResponseDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.service.account.AccountService;
+import com.gigabank.service.account.BankOperationService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +22,11 @@ import java.math.BigDecimal;
  * Все методы требуют аутентификации и соответствующих прав доступа.
  */
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/v1/accounts")
 @RequiredArgsConstructor
 public class AccountController {
     private final AccountService accountService;
+    private final BankOperationService bankOperationService;
 
     /**
      * Создает новый банковский счет для указанного пользователя.
@@ -72,7 +74,7 @@ public class AccountController {
     @PostMapping("/{id}/withdraw")
     @ResponseStatus(HttpStatus.OK)
     public void withdraw(@PathVariable Long id, @RequestParam @PositiveOrZero BigDecimal amount) {
-        accountService.withdraw(id, amount);
+        bankOperationService.withdraw(id, amount);
     }
 
     /**
@@ -84,7 +86,7 @@ public class AccountController {
     @PostMapping("/{id}/deposit")
     @ResponseStatus(HttpStatus.OK)
     public void deposit(@PathVariable Long id, @RequestParam @PositiveOrZero BigDecimal amount) {
-        accountService.deposit(id, amount);
+        bankOperationService.deposit(id, amount);
     }
 
     /**
@@ -97,6 +99,6 @@ public class AccountController {
     @ResponseStatus(HttpStatus.OK)
     public void changeAccountStatus(@PathVariable Long id,
                                     @Valid @RequestBody ChangeStatusAccountRequest request) {
-        accountService.changeAccountStatus(id, request.getStatus(), request.getReason());
+        accountService.changeAccountStatus(id, request.getStatus());
     }
 }

@@ -1,6 +1,6 @@
 package com.gigabank.constants.status;
 
-import com.gigabank.exceptions.account.AccountValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 
 /**
  * Перечисление, определяющее статус счета в системе.
@@ -18,7 +18,7 @@ public enum AccountStatus {
         try {
             AccountStatus.valueOf(status);
             return true;
-        } catch (AccountValidationException e) {
+        } catch (EntityValidationException e) {
             return false;
         }
     }

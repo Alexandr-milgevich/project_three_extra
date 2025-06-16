@@ -1,6 +1,6 @@
 package com.gigabank.constants.status;
 
-import com.gigabank.exceptions.transaction.TransactionValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 
 /**
  * Перечисление, определяющее статус транзакции в системе.
@@ -18,7 +18,7 @@ public enum TransactionStatus {
         try {
             TransactionStatus.valueOf(status);
             return true;
-        } catch (TransactionValidationException e) {
+        } catch (EntityValidationException e) {
             return false;
         }
     }

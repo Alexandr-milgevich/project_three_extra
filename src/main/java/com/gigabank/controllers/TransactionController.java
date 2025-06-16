@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  * Предоставляет API для создания, управления и получения информации о транзакциях.
  */
 @RestController
-@RequestMapping("/api/transactions")
+@RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
@@ -55,7 +55,7 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public void changeTransactionStatus(@PathVariable Long id,
                                         @RequestBody @Valid ChangeStatusTransactionRequest request) {
-        transactionService.changeTransactionStatus(id, request.getStatus(), request.getReason());
+        transactionService.changeTransactionStatus(id, request.getStatus());
     }
 
     /**

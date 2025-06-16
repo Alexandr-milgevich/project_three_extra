@@ -1,8 +1,8 @@
 package com.gigabank.utility.validators;
 
 import com.gigabank.constants.status.UserStatus;
-import com.gigabank.exceptions.User.UserAlreadyExistsException;
-import com.gigabank.exceptions.User.UserValidationException;
+import com.gigabank.exceptions.buisnes_logic.EntityExistsException;
+import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.User;
 import com.gigabank.repository.UserRepository;
@@ -63,9 +63,9 @@ public class ValidateUserService {
      */
     public void checkUserStatus(UserStatus newStatus, UserStatus oldStatus) {
         if (UserStatus.isValid(newStatus.name()))
-            throw new UserValidationException("Недопустимый статус: " + newStatus.name());
+            throw new EntityValidationException(User.class, "Недопустимый статус: " + newStatus.name());
         if (oldStatus == newStatus)
-            throw new UserValidationException("Пользователь уже имеет статус: " + newStatus);
+            throw new EntityValidationException(User.class, "Пользователь уже имеет статус: " + newStatus);
     }
 
     /**
@@ -75,7 +75,7 @@ public class ValidateUserService {
      * @param user объект пользователя
      */
     private void checkUserOnNull(User user) {
-        if (Objects.isNull(user)) throw new UserValidationException("Пользователя не существует!");
+        if (Objects.isNull(user)) throw new EntityValidationException(User.class, "Пользователя не существует!");
     }
 
     /**
@@ -85,7 +85,7 @@ public class ValidateUserService {
      * @param email email пользователя
      */
     private void checkEmail(String email) {
-        if (!isFilled(email)) throw new UserValidationException("Не указана эл. почта");
+        if (!isFilled(email)) throw new EntityValidationException(User.class, "Не указана эл. почта");
     }
 
     /**
@@ -95,7 +95,7 @@ public class ValidateUserService {
      * @param phoneNumber номер телефона пользователя
      */
     private void checkPhoneNumber(String phoneNumber) {
-        if (!isFilled(phoneNumber)) throw new UserValidationException("Не указан номер телефона");
+        if (!isFilled(phoneNumber)) throw new EntityValidationException(User.class, "Не указан номер телефона");
     }
 
     /**
@@ -105,7 +105,7 @@ public class ValidateUserService {
      * @param lastName фамилия пользователя
      */
     private void checkUsername(String lastName) {
-        if (!isFilled(lastName)) throw new UserValidationException("Не указано имя пользователя");
+        if (!isFilled(lastName)) throw new EntityValidationException(User.class, "Не указано имя пользователя");
     }
 
     /**
@@ -117,7 +117,7 @@ public class ValidateUserService {
     private void checkPhoneNumberUniqueness(String phoneNumber) {
         if (userRepository.existsByPhoneNumber(phoneNumber)) {
             log.warn("Пользователь с телефоном {} уже существует", phoneNumber);
-            throw new UserAlreadyExistsException("Пользователь с таким телефоном уже существует");
+            throw new EntityExistsException(User.class, "Пользователь с таким телефоном уже существует");
         }
     }
 
@@ -130,7 +130,7 @@ public class ValidateUserService {
     private void checkEmailUniqueness(String email) {
         if (userRepository.existsByEmail(email)) {
             log.warn("Пользователь с email {} уже существует", email);
-            throw new UserAlreadyExistsException("Пользователь с таким email уже существует");
+            throw new EntityExistsException(User.class, "Пользователь с таким email уже существует");
         }
     }
 
@@ -142,6 +142,6 @@ public class ValidateUserService {
      */
     private void checkListAccounts(List<BankAccount> listBankAccounts) {
         if (listBankAccounts == null || listBankAccounts.isEmpty())
-            throw new UserValidationException("У пользователя отсутствуют счета");
+            throw new EntityValidationException(User.class, "У пользователя отсутствуют счета");
     }
 }
