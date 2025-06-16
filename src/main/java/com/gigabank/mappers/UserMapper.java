@@ -29,7 +29,7 @@ public interface UserMapper {
      * @param user Сущность пользователя
      * @return DTO пользователя
      */
-    UserResponseDto toDto(User user);
+    UserResponseDto toResponseDto(User user);
 
     /**
      * Обновляет сущность пользователя данными из DTO.

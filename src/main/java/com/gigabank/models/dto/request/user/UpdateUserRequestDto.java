@@ -2,6 +2,7 @@ package com.gigabank.models.dto.request.user;
 
 import com.gigabank.models.dto.response.AccountResponseDto;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -21,6 +22,7 @@ public class UpdateUserRequestDto {
     String username;
     @Email
     String email;
+    @Pattern(regexp = "\\+?\\d{10,20}", message = "Invalid phone number format")
     String phoneNumber;
     List<AccountResponseDto> listAccountDto;
 }

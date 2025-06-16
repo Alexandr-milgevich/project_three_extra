@@ -1,6 +1,5 @@
 package com.gigabank.controllers;
 
-import com.gigabank.models.dto.request.user.ChangeStatusUserRequest;
 import com.gigabank.models.dto.request.user.CreateUserRequestDto;
 import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
@@ -57,20 +56,5 @@ public class UserController {
     public UserResponseDto updateUser(@PathVariable Long id,
                                       @Valid @RequestBody UpdateUserRequestDto updateDto) {
         return userService.updateUser(id, updateDto);
-    }
-
-    /**
-     * Изменяет статус пользователя по идентификатору.
-     * Также изменяются каскадно статусы его счетов
-     * и транзакций на соответствующий.
-     *
-     * @param id      идентификатор пользователя
-     * @param request DTO с новым статусом и причиной изменения
-     */
-    @PutMapping("/{id}/status")
-    @ResponseStatus(HttpStatus.OK)
-    public void changeUserStatus(@PathVariable Long id,
-                                 @Valid @RequestBody ChangeStatusUserRequest request) {
-        userService.changeUserStatus(id, request.getStatus(), request.getReason());
     }
 }

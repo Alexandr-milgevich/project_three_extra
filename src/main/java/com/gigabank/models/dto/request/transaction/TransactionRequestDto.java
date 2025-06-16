@@ -32,7 +32,7 @@ public class TransactionRequestDto {
 
     @NotNull
     @Builder.Default
-    TransactionType type = TransactionType.PAYMENT; //Тип транзакции (DEPOSIT, WITHDRAWAL, PAYMENT).
+    String type = TransactionType.PAYMENT.name(); //Тип транзакции (DEPOSIT, WITHDRAWAL, PAYMENT).
 
     @NotBlank(message = "Категория транзакции должна быть указана")
     String category;

@@ -1,7 +1,6 @@
 package com.gigabank.mappers;
 
 import com.gigabank.models.dto.request.transaction.CreateTransactionRequestDto;
-import com.gigabank.models.dto.request.transaction.TransactionRequestDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.entity.Transaction;
 import org.mapstruct.Mapper;
@@ -21,26 +20,10 @@ public interface TransactionMapper {
     Transaction toEntityFromCreateRequestDto(CreateTransactionRequestDto dto);
 
     /**
-     * Преобразует DTO создания транзакции в сущность
-     *
-     * @param dto DTO создания счета
-     * @return сущность Account
-     */
-    Transaction toEntityFromResponseDto(TransactionResponseDto dto);
-
-    /**
      * Преобразует сущность в DTO для ответа
      *
      * @param transaction сущность Transaction
      * @return DTO ответа
      */
     TransactionResponseDto toResponseDto(Transaction transaction);
-
-    /**
-     * Преобразует сущность в DTO запроса
-     *
-     * @param dto DTO ответа
-     * @return DTO запроса
-     */
-    TransactionRequestDto toRequestDto(TransactionResponseDto dto);
 }

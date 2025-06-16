@@ -1,9 +1,9 @@
 package com.gigabank.controllers;
 
 import com.gigabank.models.dto.request.account.TransferRequestDto;
-import com.gigabank.models.dto.request.transaction.ChangeStatusTransactionRequest;
 import com.gigabank.models.dto.request.transaction.CreateTransactionRequestDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
+import com.gigabank.service.account.BankAccountOperationService;
 import com.gigabank.service.transaction.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
+    private final BankAccountOperationService bankAccountOperationService;
 
     /**
      * Создает новую транзакцию для указанного счета.
@@ -41,21 +42,7 @@ public class TransactionController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public TransactionResponseDto getTransactionById(@PathVariable Long id) {
-        return transactionService.getTransactionByIdFromController(id);
-    }
-
-    /**
-     * Изменяет состояние транзакции по его идентификатору.
-     * Допускает следующие значения: ACTIVE, DELETED, BLOCKED, ARCHIVED
-     *
-     * @param id      идентификатор транзакции
-     * @param request запрос на изменение статуса транзакции
-     */
-    @PatchMapping("/{id}/status")
-    @ResponseStatus(HttpStatus.OK)
-    public void changeTransactionStatus(@PathVariable Long id,
-                                        @RequestBody @Valid ChangeStatusTransactionRequest request) {
-        transactionService.changeTransactionStatus(id, request.getStatus());
+        return transactionService.getTransactionById(id);
     }
 
     /**
@@ -67,7 +54,7 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public void transferBetweenAccounts(
             @RequestBody @Valid TransferRequestDto request) {
-        transactionService.transferBetweenAccounts(
+        bankAccountOperationService.transferBetweenAccounts(
                 request.getFromAccountId(),
                 request.getToAccountId(),
                 request.getAmount());

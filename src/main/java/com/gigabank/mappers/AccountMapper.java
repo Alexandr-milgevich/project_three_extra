@@ -21,14 +21,6 @@ public interface AccountMapper {
     BankAccount toEntityFromCreateRequestDto(CreateAccountRequestDto dto);
 
     /**
-     * Преобразует DTO создания счета в сущность
-     *
-     * @param dto DTO создания счета
-     * @return сущность Account
-     */
-    BankAccount toEntityFromResponseDto(AccountResponseDto dto);
-
-    /**
      * Преобразует сущность в DTO для ответа
      *
      * @param bankAccount сущность Account

@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-transaction
+      author: Aleksandr
+      changes:
+        - createTable:
+            tableName: transaction
+            schemaName: public
+            columns:
+              - column:
+                  name: transaction_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: amount
+                  type: DECIMAL(19,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: number_account
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: source_id
+                  type: BIGINT
+              - column:
+                  name: target_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: transaction
+            baseColumnNames: number_account
+            constraintName: transaction_fk_bank_account
+            referencedTableName: bank_account
+            referencedColumnNames: number_account
+            referencedTableSchemaName: public
+            onDelete: CASCADE

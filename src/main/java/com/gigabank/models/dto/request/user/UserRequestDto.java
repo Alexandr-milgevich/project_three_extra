@@ -1,6 +1,5 @@
 package com.gigabank.models.dto.request.user;
 
-import com.gigabank.constants.status.UserStatus;
 import com.gigabank.models.dto.response.AccountResponseDto;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -30,11 +29,8 @@ public class UserRequestDto {
     String username;
 
     @NotBlank(message = "Не указан номер телефона")
+    @Pattern(regexp = "\\+?\\d{10,20}", message = "Invalid phone number format")
     String phoneNumber;
-
-    @NotNull
-    @NotEmpty(message = "Статус не может быть пустым")
-    UserStatus status;
 
     @NotNull
     @NotEmpty(message = "У пользователя должны быть счета")

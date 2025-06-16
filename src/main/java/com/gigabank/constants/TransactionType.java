@@ -25,6 +25,6 @@ public enum TransactionType {
     public static final Set<String> SUPPORTED_TYPES =
             Arrays.stream(TransactionType.values())
                     .map(Enum::name)
-                    .map(String::toLowerCase)
+                    .map(String::toUpperCase)
                     .collect(Collectors.toSet());
 }

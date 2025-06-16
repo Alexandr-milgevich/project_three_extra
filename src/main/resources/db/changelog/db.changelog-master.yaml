@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: classpath:db/changelog/releases/v0/0/1/001_create_table_user.yaml
+  - include:
+      file: classpath:db/changelog/releases/v0/0/1/002_create-table_bank_account.yaml
+  - include:
+      file: classpath:db/changelog/releases/v0/0/1/003_create_table_transaction.yaml
+  - include:
+      file: classpath:db/changelog/releases/v0/0/1/004_create_table_refund.yaml

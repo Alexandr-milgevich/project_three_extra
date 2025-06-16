@@ -2,8 +2,6 @@ package com.gigabank.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.gigabank.constants.status.AccountStatus;
-import com.gigabank.utility.converters.AccountStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.Builder.Default;
@@ -11,7 +9,6 @@ import lombok.Builder.Default;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Сущность банковского счета.
@@ -30,12 +27,8 @@ public class BankAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "account_id")
-    private Long id;
-
-    @Default
     @Column(name = "number_account")
-    private String numberAccount = UUID.randomUUID().toString();
+    private Long id;
 
     @Column(name = "balance")
     @Default
@@ -45,11 +38,6 @@ public class BankAccount {
     @JsonBackReference
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
-
-    @Default
-    @Column(name = "status", nullable = false)
-    @Convert(converter = AccountStatusConverter.class)
-    private AccountStatus status = AccountStatus.ACTIVE;
 
     @Default
     @JsonManagedReference

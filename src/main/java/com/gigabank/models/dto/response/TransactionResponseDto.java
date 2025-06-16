@@ -1,6 +1,5 @@
 package com.gigabank.models.dto.response;
 
-import com.gigabank.constants.TransactionType;
 import com.gigabank.models.entity.BankAccount;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -21,17 +20,7 @@ import java.time.LocalDateTime;
 public class TransactionResponseDto {
     String transactionUuid;
     BigDecimal amount;
-    TransactionType type;
-    String category;
+    String type;
     LocalDateTime createdDate;
-
-    // Необязательные поля — зависят от источника оплаты
-
-    String bankName;              //Название банка (если банковский перевод).
-    String cardNumber;            //Последние 4 цифры карты (если платёж по карте).
-    String merchantName;          //Название магазина или поставщика услуг.
-    String digitalWalletId;       //Идентификатор электронного кошелька (при оплате через электронные кошельки).
-    String merchantCategoryCode;  //MCC-код продавца.
-
     BankAccount bankAccount;
 }

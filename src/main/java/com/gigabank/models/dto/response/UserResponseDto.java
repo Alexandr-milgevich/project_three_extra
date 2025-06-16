@@ -3,7 +3,6 @@ package com.gigabank.models.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -19,6 +18,5 @@ public class UserResponseDto {
     String email;
     String username;
     String phoneNumber;
-    LocalDate birthDate;
     List<AccountResponseDto> listAccountDto;
 }

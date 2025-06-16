@@ -1,8 +1,6 @@
 package com.gigabank.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.gigabank.constants.status.UserStatus;
-import com.gigabank.utility.converters.UserStatusConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.Builder.Default;
@@ -35,11 +33,6 @@ public class User {
 
     @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
-
-    @Default
-    @Column(name = "status", nullable = false)
-    @Convert(converter = UserStatusConverter.class)
-    private UserStatus status = UserStatus.ACTIVE;
 
     @Default
     @JsonManagedReference

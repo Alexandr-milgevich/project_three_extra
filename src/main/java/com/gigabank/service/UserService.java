@@ -1,6 +1,5 @@
 package com.gigabank.service;
 
-import com.gigabank.constants.status.UserStatus;
 import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;
 import com.gigabank.mappers.UserMapper;
 import com.gigabank.models.dto.request.user.CreateUserRequestDto;
@@ -9,13 +8,14 @@ import com.gigabank.models.dto.response.UserResponseDto;
 import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.User;
 import com.gigabank.repository.UserRepository;
-import com.gigabank.service.account.AccountService;
+import com.gigabank.service.account.BankAccountService;
 import com.gigabank.utility.validators.ValidateUserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,10 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserMapper userMapper;
-    private final AuditService auditService;
     private final UserRepository userRepository;
-    private final AccountService accountService;
-    private final ValidateUserService validator;
+    private final BankAccountService bankAccountService;
+    private final ValidateUserService validateUserService;
 
     /**
      * Создает нового пользователя в системе.
@@ -44,14 +43,14 @@ public class UserService {
         log.info("Начало создания пользователя.");
 
         User user = userMapper.toEntity(createUserRequestDto);
-        validator.checkEmailAndPhoneUniqueness(user.getEmail(), user.getPhoneNumber());
-        BankAccount bankAccount = accountService.createInitialAccount(user);
-        user.setListBankAccounts(List.of(bankAccount));
-
-        save(user);
+        validateUserService.validateUserBeforeSaveForCreate(user);
+        userRepository.save(user);
+        BankAccount bankAccount = bankAccountService.createInitialAccount(user);
+        user.setListBankAccounts(new ArrayList<>(List.of(bankAccount)));
+        userRepository.save(user);
 
         log.info("Пользователь с id {} был создан.", user.getId());
-        return userMapper.toDto(user);
+        return userMapper.toResponseDto(user);
     }
 
     /**
@@ -63,8 +62,8 @@ public class UserService {
     public UserResponseDto getUserByIdFromController(Long id) {
         log.info("Попытка получить пользователя по ID: {}", id);
 
-        UserResponseDto dto = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
-                .map(userMapper::toDto)
+        UserResponseDto dto = userRepository.findById(id)
+                .map(userMapper::toResponseDto)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, id));
 
         log.info("Получен пользователь по ID: {}", id);
@@ -80,7 +79,7 @@ public class UserService {
     public User getUserById(Long id) {
         log.info("Попытка получить пользователя с ID: {}", id);
 
-        User user = userRepository.findByIdAndStatus(id, UserStatus.ACTIVE)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, id));
 
         log.info("Получен пользователь с ID: {}", id);
@@ -103,7 +102,7 @@ public class UserService {
         save(user);
 
         log.info("Пользователь с ID {} успешно обновлён", id);
-        return userMapper.toDto(user);
+        return userMapper.toResponseDto(user);
     }
 
     /**
@@ -114,31 +113,27 @@ public class UserService {
     public void save(User user) {
         log.info("Начало сохранения пользователя.");
 
-        validator.validateDataBeforeSave(user);
+        validateUserService.validateDataBeforeSave(user);
         userRepository.save(user);
 
         log.info("Пользователь успешно сохранён с Id: {}.", user.getId());
     }
 
     /**
-     * Изменяет статус пользователя по идентификатору.
+     * Каскадное удаление пользователя по его идентификатору.
      *
-     * @param id        идентификатор пользователя
-     * @param newStatus новый статус пользователя
+     * @param id идентификатор пользователя
      */
     @Transactional
-    public void changeUserStatus(Long id, UserStatus newStatus, String reason) {
-        log.info("Попытка изменения статуса пользователя на {} с ID: {}", newStatus, id);
+    public void deleteUser(Long id) {
+        log.info("Попытка удаления пользователя по id: {}", id);
 
-        User user = getUserById(id);
-        UserStatus oldStatus = user.getStatus();
-        validator.checkUserStatus(newStatus, oldStatus);
-        user.setStatus(newStatus);
-        save(user);
+        if (id != null) {
+            int deletedCount = userRepository.deleteUserById(id);
+            if (deletedCount == 0)
+                throw new EntityNotFoundException(User.class, "Пользователь не найден: ");
+        }
 
-        auditService.logStatusChange(id, oldStatus, newStatus, reason);
-        log.info("Статус пользователя изменен c {} на {} с ID: {}", oldStatus, newStatus, id);
-
-        accountService.updateAccountsStatus(user.getListBankAccounts(), newStatus);
+        log.info("Удален пользователь");
     }
 }

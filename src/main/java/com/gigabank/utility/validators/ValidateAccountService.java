@@ -1,11 +1,9 @@
 package com.gigabank.utility.validators;
 
-import com.gigabank.constants.status.AccountStatus;
 import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;
 import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.User;
-import com.gigabank.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,6 @@ import static com.gigabank.utility.Utility.isFilled;
 @Service
 @RequiredArgsConstructor
 public class ValidateAccountService {
-    private final UserService userService;
 
     /**
      * Выполняет полную валидацию счета перед сохранением.
@@ -53,22 +50,6 @@ public class ValidateAccountService {
         checkId(id);
 
         log.info("Завершение валидации данных перед операцией со счетом.");
-    }
-
-    public void validateUnderTransferOperation(Long fromAccountId, Long toAccountId, BigDecimal amount) {
-        checkAmount(amount);
-        checkTwoIdOnNull(fromAccountId, toAccountId);
-    }
-
-    /**
-     * Проверяет два статуса счета: старый и изменяемый.
-     *
-     * @param newStatus статус для изменения
-     * @param oldStatus первоначальный статус
-     */
-    public void checkAccountStatus(AccountStatus newStatus, AccountStatus oldStatus) {
-        if (AccountStatus.isValid(newStatus.name()) || oldStatus == newStatus)
-            throw new EntityValidationException(BankAccount.class, "Недопустимый статус: " + newStatus.name());
     }
 
     /**
@@ -104,20 +85,10 @@ public class ValidateAccountService {
     }
 
     /**
-     * Проверяет наличие двух ID счета.
-     */
-    private void checkTwoIdOnNull(Long fromAccountId, Long toAccountId) {
-        if (!isFilled(fromAccountId) & !isFilled(toAccountId))
-            throw new EntityValidationException(BankAccount.class, "Id не может быть пустым.");
-    }
-
-    /**
      * Проверяет привязку счета к существующему пользователю.
      */
     private void checkUser(User user) {
         if (Objects.isNull(user))
-            throw new EntityValidationException(BankAccount.class, "Счет не может быть не привязанным к пользователю");
-        if (userService.getUserById(user.getId()) == null)
-            throw new EntityNotFoundException(User.class, user.getId());
+            throw new EntityNotFoundException(BankAccount.class, "Некорректные данные пользователя");
     }
 }

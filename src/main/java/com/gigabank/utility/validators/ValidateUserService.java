@@ -1,6 +1,5 @@
 package com.gigabank.utility.validators;
 
-import com.gigabank.constants.status.UserStatus;
 import com.gigabank.exceptions.buisnes_logic.EntityExistsException;
 import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 import com.gigabank.models.entity.BankAccount;
@@ -37,10 +36,16 @@ public class ValidateUserService {
      */
     public void validateDataBeforeSave(User user) {
         checkUserOnNull(user);
+        checkId(user.getId());
         checkEmail(user.getEmail());
         checkPhoneNumber(user.getPhoneNumber());
         checkUsername(user.getUsername());
         checkListAccounts(user.getListBankAccounts());
+    }
+
+    public void validateUserBeforeSaveForCreate(User user) {
+        checkEmailAndPhoneUniqueness(user.getEmail(), user.getPhoneNumber());
+        checkUsername(user.getUsername());
     }
 
     /**
@@ -56,16 +61,13 @@ public class ValidateUserService {
     }
 
     /**
-     * Проверяет два статуса счета: старый и изменяемый.
+     * Проверяет, что пользователь по данному идентификатору существует
      *
-     * @param newStatus статус для изменения
-     * @param oldStatus первоначальный статус
+     * @param id идентификатор пользователя
      */
-    public void checkUserStatus(UserStatus newStatus, UserStatus oldStatus) {
-        if (UserStatus.isValid(newStatus.name()))
-            throw new EntityValidationException(User.class, "Недопустимый статус: " + newStatus.name());
-        if (oldStatus == newStatus)
-            throw new EntityValidationException(User.class, "Пользователь уже имеет статус: " + newStatus);
+    private void checkId(Long id) {
+        if (Objects.isNull(id) || !userRepository.existsById(id))
+            throw new EntityValidationException(User.class, "У пользователя должен быть идентификатор");
     }
 
     /**
@@ -141,7 +143,7 @@ public class ValidateUserService {
      * @param listBankAccounts список счетов пользователя
      */
     private void checkListAccounts(List<BankAccount> listBankAccounts) {
-        if (listBankAccounts == null || listBankAccounts.isEmpty())
+        if (Objects.isNull(listBankAccounts) || listBankAccounts.isEmpty())
             throw new EntityValidationException(User.class, "У пользователя отсутствуют счета");
     }
 }
