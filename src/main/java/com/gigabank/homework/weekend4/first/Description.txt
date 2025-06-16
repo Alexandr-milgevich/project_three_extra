@@ -1,0 +1,7 @@
+### 1. Перенос бизнес-логики в Spring
+
+### Требуется:
+
+1. Вынести все сервисы (`BankAccountService`, `TransactionService`, `RefundService`, `NotificationService`, и т.д.) в отдельные классы и пометить их аннотацией `@Service`.
+2. Настроить зависимости между сервисами через `@Autowired`.
+3. Настроить конфигурацию с помощью Java кода
