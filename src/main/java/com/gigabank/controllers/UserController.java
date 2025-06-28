@@ -5,6 +5,7 @@ import com.gigabank.models.dto.request.user.CreateUserRequestDto;
 import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
 import com.gigabank.service.UserService;
+import com.gigabank.service.status.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserStatusService userStatusService;
 
     /**
      * Регистрирует нового пользователя.
@@ -30,7 +32,7 @@ public class UserController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDto createUser(@Valid @RequestBody CreateUserRequestDto createDto) {
-        return userService.createUser(createDto);
+        return userService.createUserFromController(createDto);
     }
 
     /**
@@ -71,6 +73,6 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void changeUserStatus(@PathVariable Long id,
                                  @Valid @RequestBody ChangeStatusUserRequest request) {
-        userService.changeUserStatus(id, request.getStatus(), request.getReason());
+        userStatusService.changeStatus(id, request.getStatus());
     }
 }

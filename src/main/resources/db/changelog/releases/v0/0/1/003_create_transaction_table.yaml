@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_transaction_table
+      author: Aleksandr
+      changes:
+        - createTable:
+            tableName: transaction
+            schemaName: public
+            columns:
+              - column:
+                  name: transaction_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: amount
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: source_id
+                  type: BIGINT
+              - column:
+                  name: target_id
+                  type: BIGINT
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: "Active"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: number_account
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: transaction_fk_bank_account
+                    references: bank_account(number_account)
+                    onDelete: RESTRICT
+      rollback:
+        - sql: "UPDATE public.transaction SET status = 'CANCELED' WHERE transaction_id = ?"
+
+  - changeSet:
+      id: add_transaction_indexes
+      author: Aleksandr
+      changes:
+        - createIndex:
+            indexName: idx_transaction_account
+            tableName: transaction
+            columns:
+              - column:
+                  name: number_account
+        - createIndex:
+            indexName: idx_transaction_status
+            tableName: transaction
+            columns:
+              - column:
+                  name: status

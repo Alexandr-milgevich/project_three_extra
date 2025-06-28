@@ -1,7 +1,11 @@
 package com.gigabank.models.dto.request.transaction;
 
 import com.gigabank.constants.TransactionType;
-import jakarta.validation.constraints.*;
+import com.gigabank.models.dto.request.account.BankAccountRequestDto;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -23,21 +27,20 @@ public class CreateTransactionRequestDto {
     @PositiveOrZero(message = "Сумма транзакции не может быть отрицательной")
     BigDecimal amount;
 
-    @Builder.Default
-    TransactionType type = TransactionType.PAYMENT; //Тип транзакции (DEPOSIT, WITHDRAWAL, PAYMENT).
-
-    @NotBlank(message = "Категория транзакции должна быть указана")
-    String category;
+    @NotEmpty(message = "Тип совершаемой транзакции обязан быть указан")
+    TransactionType type;
 
     @NotEmpty(message = "Дата и время создания транзакции должна быть указана")
     @PastOrPresent(message = "Дата и время создания транзакции не может быть в будущем.")
     LocalDateTime createdDate;
 
-    // Необязательные поля — зависят от источника оплаты
+    Long sourceUserId;
 
-    String bankName;              //Название банка (если банковский перевод).
-    String cardNumber;            //Последние 4 цифры карты (если платёж по карте).
-    String merchantName;          //Название магазина или поставщика услуг.
-    String digitalWalletId;       //Идентификатор электронного кошелька (при оплате через электронные кошельки).
-    String merchantCategoryCode;  //MCC-код продавца.
+    @NotNull(message = "Идентификатор пользователя не может быть пустым")
+    @NotEmpty(message = "Указание идентификатора пользователя обязательно")
+    Long targetUserId;
+
+    @NotNull(message = "Указание счета обязательно")
+    @NotEmpty(message = "Счет не может быть пустым")
+    BankAccountRequestDto bankAccountRequestDto;
 }

@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_user_table
+      author: Aleksandr
+      changes:
+        - createTable:
+            tableName: "user"
+            schemaName: public
+            columns:
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: phone_number
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: status
+                  type: VARCHAR(20)
+                  defaultValue: "Active"
+                  constraints:
+                    nullable: false
+      rollback:
+        - sql: "UPDATE public.user SET status = 'DELETED' WHERE user_id = ?"
+
+  - changeSet:
+      id: add_user_indexes
+      author: Aleksandr
+      changes:
+        - createIndex:
+            indexName: idx_user_email
+            tableName: user
+            columns:
+              - column:
+                  name: email
+        - createIndex:
+            indexName: idx_user_phone_number
+            tableName: user
+            columns:
+              - column:
+                  name: phone_number

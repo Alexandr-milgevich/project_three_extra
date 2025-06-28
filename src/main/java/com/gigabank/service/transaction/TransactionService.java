@@ -1,6 +1,5 @@
 package com.gigabank.service.transaction;
 
-import com.gigabank.constants.status.AccountStatus;
 import com.gigabank.constants.status.TransactionStatus;
 import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;
 import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
@@ -10,8 +9,6 @@ import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.Transaction;
 import com.gigabank.repository.TransactionRepository;
-import com.gigabank.service.account.AccountService;
-import com.gigabank.service.account.BankOperationService;
 import com.gigabank.utility.validators.ValidateTransactionService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,20 +22,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Сервис отвечает за управление платежами и переводами
+ * Сервис для управления транзакциями (платежами, переводами).
+ * Обеспечивает создание, валидацию, поиск и обработку транзакций.
+ * Все операции с балансом выполняются в транзакционном контексте.
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
+    private final TransactionMapper transactionMapper;
     private final TransactionRepository transactionRepository;
     private final ValidateTransactionService validateTransactionService;
-    private final TransactionMapper transactionMapper;
-    private final AccountService accountService;
-    private final BankOperationService bankOperationService;
 
     /**
-     * Создает новую транзакцию на основе переданных данных.
+     * Создает новую транзакцию на основе DTO запроса.
      *
      * @param createDto DTO с данными для создания транзакции
      * @return DTO созданной транзакции
@@ -55,37 +52,54 @@ public class TransactionService {
     }
 
     /**
-     * Создает новую транзакцию на основе переданных данных.
+     * Создает новую транзакцию с указанными параметрами.
      *
-     * @param amount -
-     * @param type   -
+     * @param amount       сумма операции (должна быть положительной)
+     * @param type         тип транзакции (DEPOSIT, WITHDRAWAL, TRANSFER и т.д.)
+     * @param bankAccount  связанный банковский счет
+     * @param sourceUserId ID пользователя-инициатора операции (если применимо)
+     * @param targetUserId ID пользователя-получателя
      * @return DTO созданной транзакции
      */
     @Transactional
-    public TransactionResponseDto createTransaction(BigDecimal amount, String type,
-                                                    String categories, Long accountId) {
+    public TransactionResponseDto createTransaction(BigDecimal amount, String type, BankAccount bankAccount,
+                                                    Long sourceUserId, Long targetUserId) {
         log.info("Попытка создания транзакции.");
 
         Transaction transaction = Transaction.builder()
                 .amount(amount)
                 .type(type)
-                .category(categories)
                 .createdDate(LocalDateTime.now())
-                .status(TransactionStatus.ACTIVE)
-                .bankAccount(accountService.getAccountById(accountId))
+                .bankAccount(bankAccount)
+                .sourceUserId(sourceUserId)
+                .targetUserId(targetUserId)
                 .build();
 
         save(transaction);
 
-        log.info("Создана транзакция с uuid: {}", transaction.getTransactionUuid());
-
+        log.info("Создана транзакция. Id: {}", transaction.getId());
         return transactionMapper.toResponseDto(transaction);
     }
 
+
     /**
-     * Получает транзакцию по идентификатору.
+     * Сохраняет транзакцию в базу данных после валидации.
      *
-     * @param id идентификатор транзакции
+     * @param transaction сущность транзакции для сохранения
+     */
+    public void save(Transaction transaction) {
+        log.debug("Начало сохранения транзакции: {}", transaction);
+
+        validateTransactionService.validateUnderSave(transaction);
+        transactionRepository.save(transaction);
+
+        log.info("Транзакция была сохранена в БД. Id: {} ", transaction.getId());
+    }
+
+    /**
+     * Получает активную транзакцию по ID для контроллера.
+     *
+     * @param id ID транзакции
      * @return DTO транзакции
      */
     public TransactionResponseDto getTransactionByIdFromController(long id) {
@@ -100,106 +114,111 @@ public class TransactionService {
     }
 
     /**
-     * Получает транзакцию по идентификатору.
+     * Получает активную транзакцию по ID.
      *
-     * @param id идентификатор транзакции
-     * @return DTO транзакции
+     * @param id ID транзакции
+     * @return сущность транзакции
+     */
+    public Transaction getTransactionByIdAndStatusActive(long id) {
+        log.info("Попытка получить транзакцию по ID: {} и статуса Active", id);
+
+        Transaction transaction = transactionRepository.findByIdAndStatus(id, TransactionStatus.ACTIVE)
+                .orElseThrow(() -> new EntityNotFoundException(Transaction.class, id));
+
+        log.info("Получена транзакцию. Его ID: {}", id);
+        return transaction;
+    }
+
+    /**
+     * Получает транзакцию по ID без проверки статуса.
+     *
+     * @param id ID транзакции
+     * @return сущность транзакции
      */
     public Transaction getTransactionById(long id) {
         log.info("Попытка получить транзакцию c ID: {}", id);
 
-        Transaction transaction = transactionRepository.findByIdAndStatus(id, TransactionStatus.ACTIVE)
+        Transaction transaction = transactionRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Transaction.class, id));
 
         log.info("Получена транзакцию по ID: {}", id);
         return transaction;
     }
 
-    public Page<TransactionResponseDto> getByBankAccountAndPageable(BankAccount account, Pageable pageable) {
-        log.info("Попытка получить транзакцию по счету с пагинацией по ID: {}", account.getId());
+    /**
+     * Получение списка всех транзакций.
+     */
+    public List<Transaction> getTransactions() {
+        log.info("Попытка получения всех транзакций");
 
-        Page<TransactionResponseDto> responseDtoPage = transactionRepository.findByBankAccount(account, pageable)
+        List<Transaction> listTransactions = transactionRepository.findAllBy()
+                .orElseThrow(() -> new EntityValidationException(Transaction.class, "Счета не найдены"));
+
+        log.info("Получены все транзакции");
+        return listTransactions;
+    }
+
+    /**
+     * Получает страницу транзакций по ID счета с пагинацией.
+     *
+     * @param accountId ID банковского счета
+     * @param pageable  параметры пагинации
+     * @return страница с DTO транзакций
+     */
+    public Page<TransactionResponseDto> getTransactionsByAccountIdAndPageable(Long accountId, Pageable pageable) {
+        log.info("Получение транзакций по счету {} с пагинацией {}", accountId, pageable);
+
+        Page<TransactionResponseDto> transactionsPage = transactionRepository
+                .findByBankAccountId(accountId, pageable)
                 .map(transactionMapper::toResponseDto);
 
-        log.info("Получены транзакции по счету с пагинацией по ID: {}", account.getId());
-        return responseDtoPage;
+        log.info("Получены транзакции по счету с пагинацией по ID: {}", accountId);
+        return transactionsPage;
     }
 
     /**
-     * Сохраняет информацию о транзакции в базу данных.
-     * Перед сохранением выполняет валидацию данных транзакции.
+     * Получает список транзакций по ID пользователя.
      *
-     * @param transaction сущность транзакции для сохранения
+     * @param userId ID пользователя
+     * @return список транзакций
      */
-    public void save(Transaction transaction) {
-        log.debug("Начало сохранения транзакции: {}", transaction);
+    public List<Transaction> getTransactionsByUserId(Long userId) {
+        log.info("Попытка получить список транзакций по ID пользователя: {}", userId);
 
-        validateTransactionService.validateUnderSave(transaction);
-        transactionRepository.save(transaction);
+        List<Transaction> transactionList = transactionRepository.findTransactionsByUserId(userId);
 
-        log.info("Транзакция была сохранена в БД. Id: {} ", transaction.getId());
+        log.info("Получен список транзакций");
+        return transactionList;
     }
 
     /**
-     * Выполняет перевод средств между счетами
+     * Получает транзакции по сумме.
      *
-     * @param fromAccountId ID счета отправителя
-     * @param toAccountId   ID счета получателя
-     * @param amount        сумма перевода
+     * @param amount сумма для поиска
+     * @return список транзакций с указанной суммой
      */
-    @Transactional
-    public void transferBetweenAccounts(Long fromAccountId,
-                                        Long toAccountId, BigDecimal amount) {
-        log.info("Начало перевода {} со счета {} на счет {}", amount, fromAccountId, toAccountId);
-
-        if (fromAccountId.equals(toAccountId))
-            throw new EntityValidationException(Transaction.class, "Нельзя переводить на тот же счет");
-        bankOperationService.withdraw(fromAccountId, amount);
-        bankOperationService.deposit(toAccountId, amount);
-
-        log.info("Успешный перевод {} со счета {} на счет {}", amount, fromAccountId, toAccountId);
+    public List<Transaction> getTransactionsByAmount(BigDecimal amount) {
+        return transactionRepository.findByAmount(amount);
     }
 
     /**
-     * Изменяет статус счета при изменении состояния пользователя (BLOCKED, DELETED).
+     * Получает транзакции по типу.
      *
-     * @param transactions  список транзакций счетов
-     * @param accountStatus новый статус счета
+     * @param type тип транзакции
+     * @return список транзакций указанного типа
      */
-    @Transactional
-    public void updateTransactionsStatus(List<Transaction> transactions, AccountStatus accountStatus) {
-        log.info("Начало изменений статуса для списка транзакций. Статус счета: {}", accountStatus);
-
-        TransactionStatus transactionStatus = switch (accountStatus) {
-            case ACTIVE -> TransactionStatus.ACTIVE;
-            case BLOCKED -> TransactionStatus.BLOCKED;
-            case ARCHIVED -> TransactionStatus.ARCHIVED;
-        };
-
-        transactions.forEach(transaction -> {
-            transaction.setStatus(transactionStatus);
-            transactionRepository.save(transaction);
-        });
-
-        log.info("Изменился статус для списка транзакций. Статус счета: {}", accountStatus);
+    public List<Transaction> getTransactionsByType(String type) {
+        return transactionRepository.findByType(type);
     }
 
     /**
-     * Изменяет статус транзакции по идентификатору.
+     * Получает транзакции за указанный период.
      *
-     * @param id        идентификатор транзакции
-     * @param newStatus новый статус транзакции
+     * @param start начало периода
+     * @param end   конец периода
+     * @return список транзакций в указанном временном диапазоне
      */
-    @Transactional
-    public void changeTransactionStatus(Long id, TransactionStatus newStatus) {
-        log.info("Попытка изменения статуса транзакции на {} с ID: {}", newStatus, id);
-
-        Transaction transaction = getTransactionById(id);
-        TransactionStatus oldStatus = transaction.getStatus();
-        validateTransactionService.checkTransactionStatus(newStatus, oldStatus);
-        transaction.setStatus(newStatus);
-        save(transaction);
-
-        log.info("Статус транзакции изменен c {} на {} с ID: {}", oldStatus, newStatus, id);
+    public List<Transaction> getTransactionsByDateRange(LocalDateTime start, LocalDateTime end) {
+        return transactionRepository.findByDateRange(start, end);
     }
 }

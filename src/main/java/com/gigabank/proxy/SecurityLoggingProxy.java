@@ -1,7 +1,8 @@
+/*
 package com.gigabank.proxy;
 
 import com.gigabank.models.dto.request.account.AccountRequestDto;
-import com.gigabank.service.bank.service.BankAccountService;
+import com.gigabank.service.account.BankAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,10 +10,12 @@ import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Random;
 
+*/
 /**
  * Прокси-класс для безопасного выполнения операций с банковскими счетами.
  * В текущей реализации проверка доступа эмулируется случайным boolean-значением.
- */
+ *//*
+
 @Service
 @RequiredArgsConstructor
 public class SecurityLoggingProxy {
@@ -20,12 +23,14 @@ public class SecurityLoggingProxy {
 
     private final Random random = new Random();
 
-    /**
+    */
+/**
      * Обрабатывает платеж картой с проверкой доступа.
      *
      * @param accountDto   банковский счет для списания
      * @param amount       сумма платежа
-     */
+     *//*
+
     public void processCardPayment(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
@@ -38,12 +43,14 @@ public class SecurityLoggingProxy {
         }
     }
 
-    /**
+    */
+/**
      * Обрабатывает банковский перевод с проверкой доступа.
      *
      * @param accountDto банковский счет для списания
      * @param amount     сумма перевода
-     */
+     *//*
+
     public void processBankTransfer(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
@@ -56,12 +63,14 @@ public class SecurityLoggingProxy {
         }
     }
 
-    /**
+    */
+/**
      * Обрабатывает платеж через электронный кошелек с проверкой доступа.
      *
      * @param accountDto банковский счет для списания
      * @param amount     сумма платежа
-     */
+     *//*
+
     public void processWalletPayment(AccountRequestDto accountDto, BigDecimal amount, Map<String, String> details) {
         System.out.println("Проверка доступа для выполнения операции...");
         boolean accessGranted = random.nextBoolean();
@@ -73,4 +82,4 @@ public class SecurityLoggingProxy {
             System.out.println("Доступ запрещён. Операция отменена.");
         }
     }
-}
+}*/

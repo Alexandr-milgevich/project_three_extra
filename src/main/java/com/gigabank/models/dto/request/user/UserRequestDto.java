@@ -1,7 +1,6 @@
 package com.gigabank.models.dto.request.user;
 
-import com.gigabank.constants.status.UserStatus;
-import com.gigabank.models.dto.response.AccountResponseDto;
+import com.gigabank.models.dto.response.BankAccountResponseDto;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -33,10 +32,6 @@ public class UserRequestDto {
     String phoneNumber;
 
     @NotNull
-    @NotEmpty(message = "Статус не может быть пустым")
-    UserStatus status;
-
-    @NotNull
     @NotEmpty(message = "У пользователя должны быть счета")
-    List<AccountResponseDto> listAccountDto;
+    List<BankAccountResponseDto> listAccountDto;
 }

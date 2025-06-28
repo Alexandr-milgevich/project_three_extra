@@ -1,9 +1,9 @@
 package com.gigabank.controllers;
 
-import com.gigabank.models.dto.request.account.TransferRequestDto;
 import com.gigabank.models.dto.request.transaction.ChangeStatusTransactionRequest;
 import com.gigabank.models.dto.request.transaction.CreateTransactionRequestDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
+import com.gigabank.service.status.TransactionStatusService;
 import com.gigabank.service.transaction.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
+    private final TransactionStatusService transactionStatusService;
 
     /**
      * Создает новую транзакцию для указанного счета.
@@ -55,21 +56,6 @@ public class TransactionController {
     @ResponseStatus(HttpStatus.OK)
     public void changeTransactionStatus(@PathVariable Long id,
                                         @RequestBody @Valid ChangeStatusTransactionRequest request) {
-        transactionService.changeTransactionStatus(id, request.getStatus());
-    }
-
-    /**
-     * Выполняет перевод средств между счетами
-     *
-     * @param request DTO с данными для перевода (счет отправителя, счет получателя, сумма)
-     */
-    @PostMapping("/transfer")
-    @ResponseStatus(HttpStatus.OK)
-    public void transferBetweenAccounts(
-            @RequestBody @Valid TransferRequestDto request) {
-        transactionService.transferBetweenAccounts(
-                request.getFromAccountId(),
-                request.getToAccountId(),
-                request.getAmount());
+        transactionStatusService.changeStatus(id, request.getStatus());
     }
 }

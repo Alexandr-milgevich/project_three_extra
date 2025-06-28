@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: create_refund_table
+      author: Aleksandr
+      changes:
+        - createTable:
+            tableName: refund
+            schemaName: public
+            columns:
+              - column:
+                  name: refund_id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: amount
+                  type: DECIMAL(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(500)
+              - column:
+                  name: transaction_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: refund_fk_transaction
+                    references: transaction(transaction_id)
+                    onDelete: RESTRICT
+      rollback:
+        - delete:
+            tableName: refund
+            where: "refund_id=?"

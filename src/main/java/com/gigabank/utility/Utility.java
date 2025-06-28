@@ -10,7 +10,7 @@ public class Utility {
      * Проверяет, что строка не является пустой и содержит не только пробелы.
      *
      * @param value строка для проверки
-     * @return {@code true}, если строка не не пустая после удаления пробелов, иначе {@code false}
+     * @return {@code true}, если строка не пустая после удаления пробелов, иначе {@code false}
      */
     public static boolean isFilled(String value) {
         return !Objects.isNull(value) && !value.isBlank();

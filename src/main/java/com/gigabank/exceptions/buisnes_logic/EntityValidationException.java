@@ -7,6 +7,6 @@ import com.gigabank.exceptions.BusinessException;
  */
 public class EntityValidationException extends BusinessException {
     public EntityValidationException(Class<?> entityClass, String message) {
-        super(String.format("Ошибка при валидации в : %s. Причина: %s", entityClass.getSimpleName(), message));
+        super(String.format("Ошибка при валидации в классе: %s. Причина: %s", entityClass.getSimpleName(), message));
     }
 }

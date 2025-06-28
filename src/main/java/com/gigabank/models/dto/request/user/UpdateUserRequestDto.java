@@ -1,6 +1,6 @@
 package com.gigabank.models.dto.request.user;
 
-import com.gigabank.models.dto.response.AccountResponseDto;
+import com.gigabank.models.dto.response.BankAccountResponseDto;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,5 +22,5 @@ public class UpdateUserRequestDto {
     @Email
     String email;
     String phoneNumber;
-    List<AccountResponseDto> listAccountDto;
+    List<BankAccountResponseDto> listAccountDto;
 }

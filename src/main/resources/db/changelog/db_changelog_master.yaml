@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/releases/v0/0/1/001_create_user_table.yaml
+  - include:
+      file: db/changelog/releases/v0/0/1/002_create_bank_account_table.yaml
+  - include:
+      file: db/changelog/releases/v0/0/1/003_create_transaction_table.yaml
+  - include:
+      file: db/changelog/releases/v0/0/1/004_create_refund_table.yaml
+  - include:
+      file: db/changelog/releases/v0/0/1/005_create_user_status_audit_table.yaml

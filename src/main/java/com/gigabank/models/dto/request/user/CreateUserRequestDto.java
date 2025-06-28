@@ -1,12 +1,9 @@
 package com.gigabank.models.dto.request.user;
 
-import com.gigabank.models.dto.response.AccountResponseDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
 
 /**
  * DTO для создания нового пользователя.
@@ -27,6 +24,4 @@ public class CreateUserRequestDto {
 
     @NotBlank(message = "Не указан номер телефона")
     String phoneNumber;
-
-    List<AccountResponseDto> listAccountDto;
 }

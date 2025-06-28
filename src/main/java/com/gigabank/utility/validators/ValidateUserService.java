@@ -35,12 +35,25 @@ public class ValidateUserService {
      *
      * @param user объект пользователя для валидации
      */
-    public void validateDataBeforeSave(User user) {
+    public void validateUserBeforeSave(User user) {
         checkUserOnNull(user);
+        checkId(user.getId());
         checkEmail(user.getEmail());
         checkPhoneNumber(user.getPhoneNumber());
         checkUsername(user.getUsername());
         checkListAccounts(user.getListBankAccounts());
+    }
+
+    /**
+     * Проверяет частичные данные пользователя перед созданием нового пользователя.
+     * В случае некорректных данных выбрасывает исключения валидации.
+     *
+     * @param user объект пользователя для валидации
+     */
+    public void validateUserBeforeSaveForCreate(User user) {
+        checkUserOnNull(user);
+        checkEmailAndPhoneUniqueness(user.getEmail(), user.getPhoneNumber());
+        checkUsername(user.getUsername());
     }
 
     /**
@@ -76,6 +89,16 @@ public class ValidateUserService {
      */
     private void checkUserOnNull(User user) {
         if (Objects.isNull(user)) throw new EntityValidationException(User.class, "Пользователя не существует!");
+    }
+
+    /**
+     * Проверяет, что пользователь по данному идентификатору существует
+     *
+     * @param id идентификатор пользователя
+     */
+    private void checkId(Long id) {
+        if (Objects.isNull(id) || !userRepository.existsById(id))
+            throw new EntityValidationException(User.class, "Невалидные данные. ID: " + id);
     }
 
     /**

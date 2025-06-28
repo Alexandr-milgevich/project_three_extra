@@ -1,0 +1,5 @@
+changeLogFile: src/main/resources/db/changelog/db_changelog_master.yaml
+url: jdbc:postgresql://localhost:5432/gigabank
+username: postgres
+password: admin
+driver: org.postgresql.Driver
