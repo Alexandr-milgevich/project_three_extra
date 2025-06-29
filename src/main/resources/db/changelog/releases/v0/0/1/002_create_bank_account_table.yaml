@@ -25,10 +25,7 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-                    foreignKeyName: bank_account_fk_user
-                    referencedTableName: "user"
-                    referencedColumnNames: user_id
-                    onDelete: RESTRICT
+
               - column:
                   name: status
                   type: VARCHAR(20)
@@ -41,6 +38,14 @@ databaseChangeLog:
                   defaultValueNumeric: "0"
                   constraints:
                     nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: bank_account
+            baseColumnNames: user_id
+            referencedTableName: user
+            referencedColumnNames: user_id
+            constraintName: bank_account_fk_user
+            onDelete: RESTRICT
       rollback:
         - sql: "UPDATE public.bank_account SET status = 'ARCHIVED' WHERE number_account = ?"
 

@@ -26,9 +26,16 @@ databaseChangeLog:
                   name: transaction_id
                   type: BIGINT
                   constraints:
-                    foreignKeyName: refund_fk_transaction
-                    references: transaction(transaction_id)
-                    onDelete: RESTRICT
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: refund
+            baseColumnNames: transaction_id
+            referencedTableName: transaction
+            referencedColumnNames: transaction_id
+            constraintName: refund_fk_transaction
+            onDelete: RESTRICT
+
       rollback:
         - delete:
             tableName: refund

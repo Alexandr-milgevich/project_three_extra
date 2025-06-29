@@ -46,9 +46,15 @@ databaseChangeLog:
                   type: BIGINT
                   constraints:
                     nullable: false
-                    foreignKeyName: transaction_fk_bank_account
-                    references: bank_account(number_account)
-                    onDelete: RESTRICT
+
+        - addForeignKeyConstraint:
+            baseTableName: transaction
+            baseColumnNames: number_account
+            referencedTableName: bank_account
+            referencedColumnNames: number_account
+            constraintName: transaction_fk_bank_account
+            onDelete: RESTRICT
+
       rollback:
         - sql: "UPDATE public.transaction SET status = 'CANCELED' WHERE transaction_id = ?"
 
