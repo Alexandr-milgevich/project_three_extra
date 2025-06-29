@@ -2,19 +2,22 @@ package com.gigabank.controllers;
 
 import com.gigabank.models.dto.request.account.ChangeStatusBankAccountRequest;
 import com.gigabank.models.dto.request.account.CreateBankAccountRequestDto;
-import com.gigabank.models.dto.request.operation.OperationRequestDto;
 import com.gigabank.models.dto.request.operation.TransferRequestDto;
 import com.gigabank.models.dto.response.BankAccountResponseDto;
 import com.gigabank.models.dto.response.TransactionResponseDto;
+import com.gigabank.service.account.BankAccountOperationService;
 import com.gigabank.service.account.BankAccountService;
-import com.gigabank.service.account.BankOperationService;
 import com.gigabank.service.status.BankAccountStatusService;
+import com.gigabank.service.transaction.TransactionService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 /**
  * REST контроллер для управления банковскими счетами.
@@ -25,9 +28,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/accounts")
 @RequiredArgsConstructor
 public class BankAccountController {
+    private final TransactionService transactionService;
     private final BankAccountService bankAccountService;
-    private final BankOperationService bankOperationService;
     private final BankAccountStatusService bankAccountStatusService;
+    private final BankAccountOperationService bankAccountOperationService;
 
     /**
      * Создает новый банковский счет для указанного пользователя.
@@ -63,7 +67,7 @@ public class BankAccountController {
     @ResponseStatus(HttpStatus.OK)
     public Page<TransactionResponseDto> getAccountTransactions(@PathVariable Long id,
                                                                Pageable pageable) {
-        return bankAccountService.getTransactionsByAccountIdAndPageable(id, pageable);
+        return transactionService.getTransactionsByAccountIdAndPageable(id, pageable);
     }
 
     /**
@@ -82,31 +86,25 @@ public class BankAccountController {
     /**
      * Выполняет списание средств с указанного счета.
      *
-     * @param request DTO с данными для списания средств со счета.
+     * @param id     уникальный идентификатор счета
+     * @param amount сумма для списания (должна быть положительной)
      */
     @PostMapping("/{id}/withdraw")
     @ResponseStatus(HttpStatus.OK)
-    public void withdraw(@RequestBody @Valid OperationRequestDto request) {
-        bankOperationService.withdraw(
-                request.getAccountId(),
-                request.getAmount(),
-                request.getSourceUserId(),
-                request.getTargetUserId());
+    public void withdraw(@PathVariable Long id, @RequestParam @PositiveOrZero BigDecimal amount) {
+        bankAccountOperationService.withdraw(id, amount);
     }
 
     /**
      * Выполняет пополнение средств для указанного счета.
      *
-     * @param request DTO с данными для пополнения средств для счета.
+     * @param id     уникальный идентификатор счета
+     * @param amount сумма для пополнения (должна быть положительной)
      */
     @PostMapping("/{id}/deposit")
     @ResponseStatus(HttpStatus.OK)
-    public void deposit(@RequestBody @Valid OperationRequestDto request) {
-        bankOperationService.deposit(
-                request.getAccountId(),
-                request.getAmount(),
-                request.getSourceUserId(),
-                request.getTargetUserId());
+    public void deposit(@PathVariable Long id, @RequestParam @PositiveOrZero BigDecimal amount) {
+        bankAccountOperationService.deposit(id, amount);
     }
 
     /**
@@ -118,11 +116,9 @@ public class BankAccountController {
     @ResponseStatus(HttpStatus.OK)
     public void transferBetweenAccounts(
             @RequestBody @Valid TransferRequestDto request) {
-        bankOperationService.transferBetweenAccounts(
+        bankAccountOperationService.transferBetweenAccounts(
                 request.getSourceUserId(),
                 request.getTargetUserId(),
-                request.getFromAccountId(),
-                request.getToAccountId(),
                 request.getAmount());
     }
 }

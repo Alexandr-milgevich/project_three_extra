@@ -2,6 +2,7 @@ package com.gigabank.models.dto.request.account;
 
 import com.gigabank.models.dto.response.TransactionResponseDto;
 import com.gigabank.models.dto.response.UserResponseDto;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -27,6 +28,9 @@ public class BankAccountRequestDto {
 
     @PositiveOrZero(message = "Баланс должен быть положительным")
     BigDecimal balance;
+
+    @NotBlank(message = "Не указан тип валюты")
+    String currency;
 
     @NotEmpty(message = "Счет должен быть привязан к пользователю")
     UserResponseDto userResponseDto;

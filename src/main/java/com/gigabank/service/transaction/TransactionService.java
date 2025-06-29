@@ -54,16 +54,13 @@ public class TransactionService {
     /**
      * Создает новую транзакцию с указанными параметрами.
      *
-     * @param amount       сумма операции (должна быть положительной)
-     * @param type         тип транзакции (DEPOSIT, WITHDRAWAL, TRANSFER и т.д.)
-     * @param bankAccount  связанный банковский счет
-     * @param sourceUserId ID пользователя-инициатора операции (если применимо)
-     * @param targetUserId ID пользователя-получателя
+     * @param amount      сумма операции (должна быть положительной)
+     * @param type        тип транзакции (DEPOSIT, WITHDRAWAL, TRANSFER и т.д.)
+     * @param bankAccount связанный банковский счет
      * @return DTO созданной транзакции
      */
     @Transactional
-    public TransactionResponseDto createTransaction(BigDecimal amount, String type, BankAccount bankAccount,
-                                                    Long sourceUserId, Long targetUserId) {
+    public TransactionResponseDto createTransaction(BigDecimal amount, String type, BankAccount bankAccount) {
         log.info("Попытка создания транзакции.");
 
         Transaction transaction = Transaction.builder()
@@ -71,8 +68,6 @@ public class TransactionService {
                 .type(type)
                 .createdDate(LocalDateTime.now())
                 .bankAccount(bankAccount)
-                .sourceUserId(sourceUserId)
-                .targetUserId(targetUserId)
                 .build();
 
         save(transaction);
@@ -173,6 +168,24 @@ public class TransactionService {
                 .map(transactionMapper::toResponseDto);
 
         log.info("Получены транзакции по счету с пагинацией по ID: {}", accountId);
+        return transactionsPage;
+    }
+
+    /**
+     * Получает страницу транзакций по ID пользователя с пагинацией.
+     *
+     * @param userId   ID пользователя
+     * @param pageable параметры пагинации
+     * @return страница с DTO транзакций
+     */
+    public Page<TransactionResponseDto> getTransactionsByUserIdAndPageable(Long userId, Pageable pageable) {
+        log.info("Попытка получения транзакций по идентификатору пользователя ({}) с пагинацией {}", userId, pageable);
+
+        Page<TransactionResponseDto> transactionsPage = transactionRepository
+                .findByUserId(userId, pageable)
+                .map(transactionMapper::toResponseDto);
+
+        log.info("Получены транзакции по id пользователя ({}) с пагинацией.", userId);
         return transactionsPage;
     }
 

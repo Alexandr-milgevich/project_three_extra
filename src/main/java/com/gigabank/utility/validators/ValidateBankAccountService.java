@@ -4,6 +4,7 @@ import com.gigabank.constants.status.BankAccountStatus;
 import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;
 import com.gigabank.exceptions.buisnes_logic.EntityValidationException;
 import com.gigabank.models.entity.BankAccount;
+import com.gigabank.models.entity.Transaction;
 import com.gigabank.models.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import static com.gigabank.constants.CurrencyType.SUPPORTED_CURRENCY_TYPES;
 import static com.gigabank.utility.Utility.isFilled;
 
 /**
@@ -34,6 +36,7 @@ public class ValidateBankAccountService {
         checkAccount(bankAccount);
         checkBalance(bankAccount.getBalance());
         checkUser(bankAccount.getUser());
+        checkCurrency(bankAccount.getCurrency());
 
         log.info("Завершение валидации счета перед сохранением.");
     }
@@ -102,5 +105,15 @@ public class ValidateBankAccountService {
     private void checkUser(User user) {
         if (Objects.isNull(user))
             throw new EntityNotFoundException(BankAccount.class, "Некорректные данные пользователя");
+    }
+
+    /**
+     * Проверяет тип валюты
+     *
+     * @param currency тип валюты.
+     */
+    private void checkCurrency(String currency) {
+        if (Objects.isNull(currency) || SUPPORTED_CURRENCY_TYPES.contains(currency))
+            throw new EntityValidationException(Transaction.class, "Недопустимый тип валюты: " + currency);
     }
 }

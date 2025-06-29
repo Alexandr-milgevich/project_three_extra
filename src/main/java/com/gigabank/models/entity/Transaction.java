@@ -39,12 +39,6 @@ public class Transaction {
     @CreationTimestamp
     private LocalDateTime createdDate;
 
-    @Column(name = "source_id")
-    private Long sourceUserId;
-
-    @Column(name = "target_id", nullable = false)
-    private Long targetUserId;
-
     @Default
     @Column(name = "status", nullable = false)
     @Convert(converter = TransactionStatusConverter.class)

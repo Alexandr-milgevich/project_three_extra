@@ -30,12 +30,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: source_id
-                  type: BIGINT
-              - column:
-                  name: target_id
-                  type: BIGINT
-              - column:
                   name: status
                   type: VARCHAR(20)
                   defaultValue: "Active"

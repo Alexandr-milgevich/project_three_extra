@@ -36,6 +36,10 @@ public class BankAccount {
     @Default
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column(name = "currency")
+    @Default
+    private String currency = "RUB";
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")

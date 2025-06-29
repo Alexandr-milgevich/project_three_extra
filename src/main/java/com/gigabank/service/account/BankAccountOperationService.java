@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BankOperationService {
+public class BankAccountOperationService {
     private final BankAccountService bankAccountService;
     private final TransactionService transactionService;
     private final ValidateBankAccountService validateBankAccountService;
@@ -34,8 +34,8 @@ public class BankOperationService {
      * @param amount - сумма для списания
      */
     @Transactional
-    public void withdraw(Long id, BigDecimal amount, Long sourceUserId, Long targetUserId) {
-        doWithdraw(id, amount, sourceUserId, targetUserId);
+    public void withdraw(Long id, BigDecimal amount) {
+        doWithdraw(id, amount);
     }
 
     /**
@@ -44,10 +44,8 @@ public class BankOperationService {
      *
      * @param bankAccountId - идентификатор счета для списания
      * @param amount        - сумма для списания
-     * @param sourceUserId  - идентификатор пользователя от кого происходит транзакция
-     * @param targetUserId  - идентификатор пользователя кому произведена транзакция
      */
-    private void doWithdraw(Long bankAccountId, BigDecimal amount, Long sourceUserId, Long targetUserId) {
+    private void doWithdraw(Long bankAccountId, BigDecimal amount) {
         log.info("Попытка списания средств со счета ({}) на сумму: {}.", bankAccountId, amount);
 
         validateBankAccountService.validateUnderOperation(bankAccountId, amount);
@@ -58,8 +56,7 @@ public class BankOperationService {
 
         bankAccount.setBalance(bankAccount.getBalance().subtract(amount));
         bankAccountService.save(bankAccount);
-        transactionService.createTransaction(amount, TransactionType.WITHDRAWAL.name(),
-                bankAccount, sourceUserId, targetUserId);
+        transactionService.createTransaction(amount, TransactionType.WITHDRAWAL.name(), bankAccount);
 
         log.info("Произведено списание со счета ({}) на сумму: {}.", bankAccountId, amount);
     }
@@ -70,12 +67,10 @@ public class BankOperationService {
      *
      * @param bankAccountId - идентификатор счета для пополнения
      * @param amount        - сумма для пополнения
-     * @param sourceUserId  - идентификатор пользователя от кого происходит транзакция
-     * @param targetUserId  - идентификатор пользователя кому произведена транзакция
      */
     @Transactional
-    public void deposit(Long bankAccountId, BigDecimal amount, Long sourceUserId, Long targetUserId) {
-        doDeposit(bankAccountId, amount, sourceUserId, targetUserId);
+    public void deposit(Long bankAccountId, BigDecimal amount) {
+        doDeposit(bankAccountId, amount);
     }
 
     /**
@@ -84,10 +79,8 @@ public class BankOperationService {
      *
      * @param bankAccountId - идентификатор счета для пополнения
      * @param amount        - сумма для пополнения
-     * @param sourceUserId  - идентификатор пользователя от кого происходит транзакция
-     * @param targetUserId  - идентификатор пользователя кому произведена транзакция
      */
-    private void doDeposit(Long bankAccountId, BigDecimal amount, Long sourceUserId, Long targetUserId) {
+    private void doDeposit(Long bankAccountId, BigDecimal amount) {
         log.info("Попытка пополнения средств по счету ({}) на сумму: {}", bankAccountId, amount);
 
         validateBankAccountService.validateUnderOperation(bankAccountId, amount);
@@ -95,8 +88,7 @@ public class BankOperationService {
         account.setBalance(account.getBalance().add(amount));
         bankAccountService.save(account);
 
-        transactionService.createTransaction(amount, TransactionType.DEPOSIT.name(), account,
-                sourceUserId, targetUserId);
+        transactionService.createTransaction(amount, TransactionType.DEPOSIT.name(), account);
 
         log.info("Произведено пополнение средств по счету ({}) на сумму: {}.", bankAccountId, amount);
     }
@@ -104,22 +96,19 @@ public class BankOperationService {
     /**
      * Выполняет перевод средств между счетами
      *
-     * @param sourceUserId    - идентификатор пользователя от кого происходит транзакция
-     * @param targetUserId    - идентификатор пользователя кому произведена транзакция
      * @param sourceAccountId - идентификатор счета отправителя
      * @param targetAccountId - идентификатор счета получателя
      * @param amount          - сумма перевода
      */
     @Transactional
-    public void transferBetweenAccounts(Long sourceUserId, Long targetUserId,
-                                        Long sourceAccountId, Long targetAccountId, BigDecimal amount) {
+    public void transferBetweenAccounts(Long sourceAccountId, Long targetAccountId, BigDecimal amount) {
         log.info("Попытка перевода средств на сумму: {} со счета {} на счет {}", amount, sourceAccountId, targetAccountId);
 
         if (sourceAccountId.equals(targetAccountId))
             throw new EntityValidationException(Transaction.class, "Нельзя произвести операцию на тот же счет");
 
-        doWithdraw(sourceAccountId, amount, sourceUserId, targetUserId);
-        doDeposit(targetAccountId, amount, sourceUserId, targetUserId);
+        doWithdraw(sourceAccountId, amount);
+        doDeposit(targetAccountId, amount);
 
         log.info("Успешный перевод на сумму: {} со счета: {} на счет: {}", amount, sourceAccountId, targetAccountId);
     }

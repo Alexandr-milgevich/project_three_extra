@@ -28,6 +28,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
 
     Page<Transaction> findByBankAccountId(Long accountId, Pageable pageable);
 
+    Page<Transaction> findByUserId(Long userId, Pageable pageable);
+
     // Найти все транзакции по конкретному идентификатору пользователя
     @Query("SELECT t FROM Transaction t WHERE t.bankAccount.user.id = :userId")
     List<Transaction> findTransactionsByUserId(@Param("userId") Long userId);

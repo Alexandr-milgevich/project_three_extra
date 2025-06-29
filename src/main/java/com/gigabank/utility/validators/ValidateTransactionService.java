@@ -31,8 +31,6 @@ public class ValidateTransactionService {
     public void validateUnderSave(Transaction transaction) {
         log.info("Начало валидации транзакции перед сохранением.");
 
-        checkTargetUserId(transaction.getTargetUserId());
-        checkSourceUserId(transaction.getSourceUserId());
         checkAmount(transaction.getAmount());
         checkType(transaction.getType());
 
@@ -48,28 +46,6 @@ public class ValidateTransactionService {
     public void checkTransactionStatus(TransactionStatus newStatus, TransactionStatus oldStatus) {
         if (BankAccountStatus.isValid(newStatus.name()) || oldStatus == newStatus)
             throw new EntityValidationException(Transaction.class, "Недопустимый статус: " + newStatus.name());
-    }
-
-    /**
-     * Проверяет идентификатор пользователя кому проведена транзакция.
-     *
-     * @param targetUserId идентификатор пользователя кому проведена транзакция.
-     */
-    private void checkTargetUserId(Long targetUserId) {
-        if (Objects.isNull(targetUserId) || !userRepository.existsById(targetUserId))
-            throw new EntityValidationException(Transaction.class,
-                    "Данного пользователя не существует или указан неверно. ID:  " + targetUserId);
-    }
-
-    /**
-     * Проверяет идентификатор пользователя от кого была проведена транзакция.
-     *
-     * @param sourceUserId идентификатор пользователя от кого была совершена операция.
-     */
-    private void checkSourceUserId(Long sourceUserId) {
-        if (!Objects.isNull(sourceUserId) && !userRepository.existsById(sourceUserId))
-            throw new EntityValidationException(Transaction.class,
-                    "Данного пользователя не существует. ID:  " + sourceUserId);
     }
 
     /**
