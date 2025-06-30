@@ -4,7 +4,7 @@ import com.gigabank.models.dto.request.user.ChangeStatusUserRequest;
 import com.gigabank.models.dto.request.user.CreateUserRequestDto;
 import com.gigabank.models.dto.request.user.UpdateUserRequestDto;
 import com.gigabank.models.dto.response.UserResponseDto;
-import com.gigabank.service.UserService;
+import com.gigabank.service.user.UserService;
 import com.gigabank.service.status.UserStatusService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

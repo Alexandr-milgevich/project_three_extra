@@ -1,4 +1,4 @@
-package com.gigabank.service;
+package com.gigabank.service.audit;
 
 import com.gigabank.constants.status.UserStatus;
 import com.gigabank.models.entity.UserStatusAudit;

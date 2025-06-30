@@ -1,4 +1,4 @@
-package com.gigabank.service;
+package com.gigabank.service.user;
 
 import com.gigabank.constants.status.UserStatus;
 import com.gigabank.exceptions.buisnes_logic.EntityNotFoundException;

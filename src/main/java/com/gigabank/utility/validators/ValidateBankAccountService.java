@@ -113,7 +113,7 @@ public class ValidateBankAccountService {
      * @param currency тип валюты.
      */
     private void checkCurrency(String currency) {
-        if (Objects.isNull(currency) || SUPPORTED_CURRENCY_TYPES.contains(currency))
+        if (Objects.isNull(currency) || !SUPPORTED_CURRENCY_TYPES.contains(currency.toUpperCase()))
             throw new EntityValidationException(Transaction.class, "Недопустимый тип валюты: " + currency);
     }
 }

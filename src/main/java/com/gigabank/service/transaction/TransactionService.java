@@ -182,7 +182,7 @@ public class TransactionService {
         log.info("Попытка получения транзакций по идентификатору пользователя ({}) с пагинацией {}", userId, pageable);
 
         Page<TransactionResponseDto> transactionsPage = transactionRepository
-                .findByUserId(userId, pageable)
+                .findByBankAccount_User_Id(userId, pageable)
                 .map(transactionMapper::toResponseDto);
 
         log.info("Получены транзакции по id пользователя ({}) с пагинацией.", userId);

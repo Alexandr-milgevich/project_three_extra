@@ -64,7 +64,7 @@ public class ValidateTransactionService {
      * @param transactionType тип транзакции.
      */
     private void checkType(String transactionType) {
-        if (Objects.isNull(transactionType) || SUPPORTED_TYPES.contains(transactionType))
+        if (Objects.isNull(transactionType) || !SUPPORTED_TYPES.contains(transactionType.toLowerCase()))
             throw new EntityValidationException(Transaction.class, "Недопустимый тип транзакции: " + transactionType);
     }
 }
