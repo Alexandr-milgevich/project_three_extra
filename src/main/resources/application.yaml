@@ -26,10 +26,20 @@ spring:
     change-log: classpath:db/changelog/db_changelog_master.yaml
     enabled: true
 
+banking:                 # Логирование и настройка из стартера
+  logging:
+    enabled: true        # Включить аспект (можно не указывать, так как по умолчанию true)
+    level: DEBUG         # Уровень логирования (DEBUG/INFO/WARN/ERROR)
+    log-arguments: true  # Логировать аргументы методов
+    log-execution-time: true # Логировать время выполнения
+
 logging:
   level:
     root: INFO
     com.gigabank: DEBUG
+    org.springframework.aop: DEBUG
+    com.example.logging: DEBUG  # Чтобы логировать из стартера
+    org.springframework.boot.autoconfigure: DEBUG  # Логи из авто конфигурации
   file:
     name: logs/app.log
   pattern:

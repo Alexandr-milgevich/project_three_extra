@@ -1,6 +1,6 @@
 package com.gigabank.service;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
  * Этот класс реализует паттерн Singleton,
  * обеспечивая создание только одного экземпляра подключения к платёжной системе.
  */
-@Service
+@Component
 public class PaymentGatewayService {
 
     /**

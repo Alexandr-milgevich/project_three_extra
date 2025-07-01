@@ -2,23 +2,29 @@ package com.gigabank;
 
 import com.gigabank.models.entity.BankAccount;
 import com.gigabank.models.entity.User;
-import com.gigabank.service.user.UserService;
-import com.gigabank.service.account.BankAccountService;
 import com.gigabank.service.account.BankAccountOperationService;
+import com.gigabank.service.account.BankAccountService;
+import com.gigabank.service.user.UserService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 import java.math.BigDecimal;
 
 @EnableAspectJAutoProxy
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.gigabank", "com.example.logging"})
+@ConfigurationPropertiesScan("com.example.logging.properties")
 public class BankSystemApp {
 
     public static void main(String[] args) {
         //SpringApplication.run(BankSystemApp.class, args);
         ConfigurableApplicationContext context = SpringApplication.run(BankSystemApp.class, args);
+
+        // Проверка загрузки аспекта
+        boolean hasBean = context.containsBean("loggingAspect");
+        System.out.println("LoggingAspect bean present: " + hasBean);
 
         UserService userService = context.getBean(UserService.class);
         BankAccountService bankAccountService = context.getBean(BankAccountService.class);
